@@ -54,34 +54,6 @@ function Header() {
     setTempIsmenu(false);
   }
 
-  /*useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
-        if (user) {
-            await user.reload();
-            const updatedUser = firebaseAuth.currentUser;
-            dispatch(setUserDetails(updatedUser)); // Update user details in Redux
-
-            // Check if user has a profile picture
-            if (!updatedUser.photoURL) {
-                try {
-                    // Update the user's profile picture if not set
-                    await updatedUser.updateProfile({
-                        photoURL: log, // URL of the default profile picture
-                    });
-                    // Update the Redux store with the new profile picture
-                    dispatch(setUserDetails(updatedUser));
-                } catch (err) {
-                    console.log('Error updating profile picture:', err);
-                }
-            }
-        } else {
-            dispatch(setUserNull());
-        }
-    });
-
-    return () => unsubscribe();
-}, [dispatch, firebaseAuth]);*/
-
 useEffect(() => {
   const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
     setLoading(true);
