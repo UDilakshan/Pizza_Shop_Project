@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import { motion } from "framer-motion";
-import { buttonClick, staggerFadeInOut, slideIn } from "../animations";
+import { buttonClick, slideIn } from "../animations";
 import { BiChevronRight } from "react-icons/bi";
 import { setCartOff } from "../context/actions/displaycartAction";
 import { alertSuccess, alertNULL, alertDanger } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
-import { addNeworder, getAllCartItems, increaseItemQuantity } from "../api/index";
+import { addNeworder, getAllCartItems,increaseItemQuantity } from "../api/index";
 import empty from '../assets/images/OtherImages/empty.jpg';
+import Customization from "./Customization";
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate for redirection
   const cart = useSelector((state) => state.cart);
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user); // Get user info
   
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [name,setName] = useState(user.name);
-  const [addressNo,setAddressNo] = useState("");
-  const [address1,setAddress1] = useState("");
-  const [address2,setAddress2] = useState("");
-  const [phone,setPhone] = useState("");
+  const [name, setName] = useState(user?.name || "");
+  const [addressNo, setAddressNo] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [phone, setPhone] = useState("");
 
-  
-  
-   
   useEffect(() => {
     let tot = 0;
     if (cart) {
@@ -43,19 +43,27 @@ const Cart = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Check if the user is logged in before placing the order
+    if (!user || !user.user_id) {
+      dispatch(alertDanger("Please log in to place an order"));
+      setTimeout(() => {
+        dispatch(alertNULL());
+        navigate("/login"); // Redirect to login page
+      }, 2000);
+      return;
+    }
 
-  let currentTotal = 0;
-  if (cart && cart.length > 0) {
-    currentTotal = cart.reduce((acc, item) => {
-      const price = parseFloat(item.usualPrice);
-      const quantity = parseInt(item.quantity, 10);
-      return acc + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity);
-    }, 0);
-  }
+    let currentTotal = 0;
+    if (cart && cart.length > 0) {
+      currentTotal = cart.reduce((acc, item) => {
+        const price = parseFloat(item.usualPrice);
+        const quantity = parseInt(item.quantity, 10);
+        return acc + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity);
+      }, 0);
+    }
 
     const data = {
       name: name,
@@ -66,57 +74,52 @@ const Cart = () => {
       address1: address1,
       address2: address2,
       phone: phone,
-      total:currentTotal,
-      
+      total: currentTotal,
     };
 
-    addNeworder(data).then(res => {
+    // Send the order to the server
+    addNeworder(data).then((res) => {
+      if (res) {
+        dispatch(alertSuccess("Order submitted successfully"));
 
-     
-     if (res) {
-      dispatch(alertSuccess("Order submitted successfully"));
+        // Reset form inputs and total
+        setName("");
+        setAddressNo("");
+        setAddress1("");
+        setAddress2("");
+        setPhone("");
+        setTotal(0);
 
-      setName("");
-      setAddressNo("");
-      setAddress1("");
-      setAddress2("");
-      setPhone("");
-      setTotal(0);
-      
-  
-      toggleModal(); // Close the modal after submission
+        // Reset cart to empty
+        dispatch(setCartItems([])); // This will clear the cart
 
+        toggleModal(); // Close the modal after submission
 
-      setTimeout(() => {
-        dispatch(alertNULL());
-      }, 3000);
-     }else {
-      dispatch(alertDanger("Order Failed!"));
-      setTimeout(() => {
-        dispatch(alertNULL());
-      }, 3000);
-     }
+        setTimeout(() => {
+          dispatch(alertNULL());
+        }, 3000);
+      } else {
+        dispatch(alertDanger("Order Failed!"));
+        setTimeout(() => {
+          dispatch(alertNULL());
+        }, 3000);
+      }
     });
- 
- 
-    
-    // Here you could dispatch an action to process the order or navigate to a confirmation page
-};
+  };
 
-const handlePhoneChange = (e) => {
-  const value = e.target.value;
-  if (/^\d*$/.test(value) && value.length <= 10) {
-    setPhone(value);
-  }
-};
-
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setPhone(value);
+    }
+  };
 
   return (
     <motion.div
       {...slideIn}
-      className="fixed z-50 top-16 right-0 w-400 md:w-500 bg-gradient-to-r from-purple-600 to-blue-500 backdrop-blur-lg shadow-2xl h-screen"
+      className="fixed z-50 top-24 right-0 w-full md:w-[400px] bg-gradient-to-r from-purple-600 to-blue-500 backdrop-blur-lg shadow-2xl h-screen p-6 rounded-l-xl"
     >
-      <div className="w-full flex items-center justify-between py-4 px-5 border-b border-gray-300">
+      <div className="w-full flex items-center justify-between py-4 border-b border-gray-300">
         <motion.i
           {...buttonClick}
           className="cursor-pointer"
@@ -124,51 +127,48 @@ const handlePhoneChange = (e) => {
         >
           <BiChevronRight className="text-[40px] text-white" />
         </motion.i>
-        <p className="text-l text-white font-bold">Your Cart</p>
+        <p className="text-2xl text-white font-bold">Your Cart</p>
       </div>
 
-      <div className="flex-1 flex flex-col items-start justify-start rounded-t-3xl bg-white h-full py-6 gap-3 relative overflow-hidden">
+      <div className="flex-1 flex flex-col items-start justify-start bg-white h-full py-6 gap-3 overflow-y-auto rounded-t-xl">
         {cart && cart.length > 0 ? (
           <>
-            <div className="flex flex-col w-full items-start justify-start gap-3 h-[65%] overflow-y-scroll scrollbar-none px-4">
+            <div className="flex flex-col w-full items-start justify-start gap-3 h-[60%] overflow-y-scroll px-4">
               {cart.map((item, i) => (
                 <CartItemCard key={i} index={i} data={item} />
               ))}
             </div>
 
-            <div className="bg-gradient-to-r from-purple-600 to-blue-500 w-full h-[22%] flex flex-col items-center justify-center px-4 py-6 shadow-inner">
-              <div className="w-full flex items-center justify-evenly">
-                <p className="text-xl text-white font-bold">Total</p>
-                <p className="text-xl text-white font-bold flex items-center justify-center gap-1">
-                  Rs {total}/=
-                </p>
+            <div className="w-full flex flex-col items-center justify-between px-6 py-4 border-t border-gray-200 bg-gradient-to-r from-purple-600 to-blue-500 rounded-b-xl">
+              <div className="w-full flex items-center justify-between text-white font-bold">
+                <p className="text-xl">Total</p>
+                <p className="text-xl">Rs {total}/=</p>
               </div>
 
               <button
-                className='text-slate-900 text-base md:ml-8 ml-4 py-2 px-4 hover:text-slate-100 font-semibold hover:bg-orange-600 bg-orange-500 rounded-xl cursor-pointer'
+                className="mt-4 w-full py-3 text-lg font-semibold text-slate-900 hover:text-white bg-blue-800 hover:bg-blue-600 rounded-xl transition-all duration-200 ease-in-out"
                 onClick={toggleModal}
               >
-                Order
+                Place Order
               </button>
             </div>
           </>
         ) : (
-          <div className='w-full h-full flex flex-col items-center justify-center gap-6'>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-6">
             <img
               src={empty}
-              className='md:w-40 md:h-40 max-w-[250px] w-[180px] h-[180px] rounded-full object-contain'
-              alt='Empty Cart'
+              className="w-40 h-40 rounded-full object-contain"
+              alt="Empty Cart"
             />
-            <p className='text-xl text-gray-700 font-semibold'>
-              Your cart is empty
-            </p>
+            <p className="text-xl text-gray-700 font-semibold">Your cart is empty</p>
+            <p className="text-xl text-gray-700 font-semibold">Continue purchasing!</p>
           </div>
         )}
       </div>
 
       {isModalOpen && (
         <div className="fixed inset-0 z-70 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6">
+          <div className="bg-white rounded-lg p-6 max-w-[400px] w-full">
             <h2 className="text-xl font-semibold mb-4">Enter Your Details</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -177,7 +177,7 @@ const handlePhoneChange = (e) => {
                   type="text"
                   name="name"
                   value={name}
-                  onChange={(e)=>setName(e.target.value)}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full p-2 border rounded"
                   required
                 />
@@ -186,9 +186,9 @@ const handlePhoneChange = (e) => {
                 <label className="block text-gray-700">Address No</label>
                 <input
                   type="text"
-                  name="address No"
+                  name="addressNo"
                   value={addressNo}
-                  onChange={(e)=>setAddressNo(e.target.value)}
+                  onChange={(e) => setAddressNo(e.target.value)}
                   className="w-full p-2 border rounded"
                   required
                 />
@@ -199,7 +199,7 @@ const handlePhoneChange = (e) => {
                   type="text"
                   name="address1"
                   value={address1}
-                  onChange={(e)=>setAddress1(e.target.value)}
+                  onChange={(e) => setAddress1(e.target.value)}
                   className="w-full p-2 border rounded"
                   required
                 />
@@ -210,7 +210,7 @@ const handlePhoneChange = (e) => {
                   type="text"
                   name="address2"
                   value={address2}
-                  onChange={(e)=>setAddress2(e.target.value)}
+                  onChange={(e) => setAddress2(e.target.value)}
                   className="w-full p-2 border rounded"
                   required
                 />
@@ -227,9 +227,7 @@ const handlePhoneChange = (e) => {
                   placeholder="Enter your phone number"
                 />
                 {phone.length > 0 && phone.length < 10 && (
-                  <p className="text-red-500 text-sm">
-                    Phone number must be 10 digits long.
-                  </p>
+                  <p className="text-red-500 text-sm">Phone number must be 10 digits long.</p>
                 )}
               </div>
               <div className="flex justify-end">
@@ -255,9 +253,11 @@ const handlePhoneChange = (e) => {
   );
 };
 
+// Updated CartItemCard with user and navigate defined inside the component
 export const CartItemCard = ({ index, data }) => {
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user); // Fetch user here
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Add navigate here
   const [itemTotal, setItemTotal] = useState(0);
 
   useEffect(() => {
@@ -267,10 +267,21 @@ export const CartItemCard = ({ index, data }) => {
   }, [data.usualPrice, data.quantity]);
 
   const decrementCard = (productId) => {
+    // Check if the user is logged in before updating the cart
+    if (!user || !user.user_id) {
+      dispatch(alertDanger("Please log in to update the cart"));
+      setTimeout(() => {
+        dispatch(alertNULL());
+        navigate("/login"); // Redirect to login page
+      }, 2000);
+      return;
+    }
+
     dispatch(alertSuccess("Updated the cart item"));
     setTimeout(() => {
       dispatch(alertNULL());
     }, 3000);
+
     increaseItemQuantity(user?.user_id, productId, "decrement")
       .then(() => getAllCartItems(user?.user_id))
       .then((items) => {
@@ -284,10 +295,21 @@ export const CartItemCard = ({ index, data }) => {
   };
 
   const incrementCard = (productId) => {
+    // Check if the user is logged in before updating the cart
+    if (!user || !user.user_id) {
+      dispatch(alertDanger("Please log in to update the cart"));
+      setTimeout(() => {
+        dispatch(alertNULL());
+        navigate("/login"); // Redirect to login page
+      }, 2000);
+      return;
+    }
+
     dispatch(alertSuccess("Updated the cart item"));
     setTimeout(() => {
       dispatch(alertNULL());
     }, 3000);
+
     increaseItemQuantity(user?.user_id, productId, "increment")
       .then(() => getAllCartItems(user?.user_id))
       .then((items) => {
@@ -303,7 +325,6 @@ export const CartItemCard = ({ index, data }) => {
   return (
     <motion.div
       key={index}
-      {...staggerFadeInOut(index)}
       className="w-full flex items-center justify-between bg-gray-100 rounded-md drop-shadow-md p-4 gap-4"
     >
       <img
@@ -356,4 +377,6 @@ export const CartItemCard = ({ index, data }) => {
   );
 };
 
-export default Cart;  
+export default Cart;
+
+ 
