@@ -1,7 +1,3 @@
-
-//const initialState = {
-  //user: null
-//};
 const initialState = {
   uid: null,
   email: null,
@@ -9,7 +5,7 @@ const initialState = {
   phoneNumber: null,
   address: null,
   photoURL: null,
-  // other fields...
+  
 };
 
 const userReducer = (state = initialState, action) => {
@@ -20,20 +16,7 @@ const userReducer = (state = initialState, action) => {
         console.log('Payload received in reducer:', action.payload); // Add this line
         return {
           ...state,
-          //...state.user,
           ...action.payload,
-          
-          /*user: action.payload,
-          uid: action.payload.uid,
-          email: action.payload.email,
-          emailVerified: action.payload.emailVerified,
-          displayName: action.payload.displayName,
-          photoURL: action.payload.photoURL,
-          phoneNumber: action.payload.phoneNumber,
-          address: action.payload.address,     
-          user_name: action.payload.user_name,
-          isAnonymous: action.payload.isAnonymous,
-          providerData: action.payload.providerData,*/
     
         }
       
