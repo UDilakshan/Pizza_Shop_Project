@@ -15,7 +15,8 @@ const firebaseConfig = {
 };
 
 
-const app = getApps.length > 0 ? getApp() : initializeApp(firebaseConfig);
+//const app = getApps.length > 0 ? getApp() : initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 const storage = getStorage(app);
 
