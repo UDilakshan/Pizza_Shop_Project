@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "react-router-hash-link": "^2.4.3",
+    "source-map-loader": "^5.0.0",
+    "firebase": "^10.7.1",
+    "firebase-functions": "^5.0.1"
+  }
+}

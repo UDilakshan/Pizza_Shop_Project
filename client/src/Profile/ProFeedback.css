@@ -1,0 +1,18 @@
+.custom-dialog .MuiPaper-root {
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .custom-dialog .MuiDialogTitle-root {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .custom-dialog .MuiDialogContent-root {
+    color: #555;
+  }
+  
+  .custom-dialog .MuiDialogActions-root {
+    justify-content: flex-end;
+  }
+  

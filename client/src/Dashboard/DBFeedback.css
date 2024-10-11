@@ -1,0 +1,39 @@
+/* Ensure proper spacing between paragraphs in the dialog */
+.custom-dialog .MuiDialogContent-root p {
+    margin-bottom: 16px !important;
+  }
+  
+  /* Ensure dialog title has correct background and text color */
+  .custom-dialog .MuiDialogTitle-root {
+    background-color: #f0f0f0 !important;
+    color: #333 !important;
+  }
+  
+  /* Ensure dialog content area has correct background and text color */
+  .custom-dialog .MuiDialogContent-root {
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+  
+  /* Ensure dialog actions area has correct background and padding */
+  .custom-dialog .MuiDialogActions-root {
+    background-color: #f0f0f0 !important;
+    padding: 16px !important;
+  }
+  
+  /* Ensure button colors are correct */
+  .custom-dialog .MuiButton-root {
+    color: #fff !important;
+    background-color: #3f51b5 !important;
+  }
+  
+  /* Ensure button hover colors are correct */
+  .custom-dialog .MuiButton-root:hover {
+    background-color: #303f9f !important;
+  }
+  
+  
+  
+  
+  
+  
