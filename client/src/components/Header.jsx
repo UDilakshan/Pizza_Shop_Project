@@ -14,6 +14,7 @@ import { setUserNull,setUserDetails} from '../context/actions/userActions';
 import { PiShoppingCartBold } from "react-icons/pi";
 import { getDoc, doc,setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseconfig";
+import Avatar2 from '../assets/images/OtherImages/Avatar2.png';
 
 function Header() {
   
@@ -206,23 +207,23 @@ useEffect(() => {
                 user.emailVerified ? (
                   <div className='relative cursor-pointer flex items-center gap-3'>
                     <motion.div {...SlideIn200} className='flex items-center '>
-                      <motion.img
-                       onMouseEnter={() => setIsMenu(true)} 
-                       src={user?.picture || log} 
-                       whileHover={{ scale: 1.15 }} 
-                       className='w-10 h-8 rounded-full object-cover'
-                       referrerPolicy='no-referrer'
-                       alt="User"
-                       onError={(e) => {
-                          e.target.onerror = null; // Prevent infinite loop
-                          console.log('Failed to load the image:', e);
-                          e.target.src = log; // Set fallback image
-                      }}
-                      
-                  />
-                    {/*  <p className='text-white font-semibold'>{user.displayName.split(' ')[0]}</p>*/}
+                      <motion.div className='relative w-10 h-10'>
+                         <motion.img
+                            onMouseEnter={() => setIsMenu(true)} 
+                            src={Avatar2}
+                            whileHover={{ scale: 1.15 }} 
+                            className='w-10 h-10 rounded-full object-cover border-2 border-white shadow-md' // Updated border width
+                            referrerPolicy='no-referrer'
+                            alt="User"
+                            onError={(e) => {
+                              e.target.onerror = null; 
+                              console.log('Failed to load the image:', e);
+                              e.target.src = log; 
+                            }}
+                         />
+                       </motion.div>
+                  </motion.div>
 
-                    </motion.div>
                     <div className='flex flex-col'>
                      
                         {

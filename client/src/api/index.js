@@ -142,3 +142,17 @@ export const deleteUser = (userId) => {
 export const updateUser = (userId, updatedUserData) => {
   return axios.put(`/api/users/${userId}`, updatedUserData);
 };
+
+export const softDeleteUser = async (userId) => {
+  try {
+    const response = await axios.put(`${baseURL}/api/users/soft-delete/${userId}`, {
+      isDeleted: true,
+      deletedAt: new Date(),
+    });
+
+    return response.data.data; // Adjust based on your API response structure
+  } catch (error) {
+    console.error('Error soft deleting user:', error);
+    throw error;
+  }
+};
