@@ -9,6 +9,13 @@ import { FaTrash, FaEye } from "react-icons/fa";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import "./DBFeedback.css"; 
 
+const colorMap = {
+  Complaint: 'red',
+  Contact: 'blue',
+  Appreciation: 'green',
+  "Order Inquiry": 'orange'
+};
+
 const DBFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
@@ -23,7 +30,8 @@ const DBFeedback = () => {
           id: doc.id,
           ...doc.data(),
         }));
-                // Sort feedbackList by timestamp in descending order
+        
+        // Sort feedbackList by timestamp in descending order
         feedbackList.sort((a, b) => {
           const dateA = a.timestamp?.seconds || 0;
           const dateB = b.timestamp?.seconds || 0;
@@ -84,7 +92,7 @@ const DBFeedback = () => {
             title: "User Name",
             field: "userName",
             render: (rowData) => (
-              <p className="text-sm font-semibold text-black flex items-center justify-self-center">
+              <p className="text-sm text-black flex items-center justify-self-center">
                 {rowData.userName}
               </p>
             ),
@@ -93,25 +101,16 @@ const DBFeedback = () => {
             title: "Email",
             field: "email",
             render: (rowData) => (
-              <p className="text-sm font-semibold text-black flex items-center justify-self-center">
+              <p className="text-sm text-black flex items-center justify-self-center">
                 {rowData.email}
               </p>
             ),
           },
-          //{
-            //title: "Phone Number",
-           // field: "phonenumber",
-           // render: (rowData) => (
-            //  <p className="text-sm font-semibold text-black flex items-center justify-self-center">
-            //</p>     {<rowData className="phonenumber"></rowData> }  {/* Display 'N/A' if phoneno is not present */}
-           //  </div> </p>
-          //  ),
-        //  },
           {
             title: "Date",
             field: "timestamp",
             render: (rowData) => (
-              <p className="text-sm font-semibold text-black flex items-center justify-self-center">
+              <p className="text-sm  text-black flex items-center justify-self-center">
                 {formatDate(rowData.timestamp)}
               </p>
             ),
@@ -120,7 +119,10 @@ const DBFeedback = () => {
             title: "Feedback Type",
             field: "feedbackType",
             render: (rowData) => (
-              <p className="text-sm font-semibold text-black flex items-center justify-self-center">
+              <p
+                className="text-sm  text-black flex items-center justify-self-center"
+                style={{ color: colorMap[rowData.feedbackType] || 'black' }}
+              >
                 {rowData.feedbackType}
               </p>
             ),
@@ -129,7 +131,7 @@ const DBFeedback = () => {
             title: "Feedback",
             field: "message",
             render: (rowData) => (
-              <p className="text-xs font-semibold text-black flex items-center justify-self-center">
+              <p className="text-xs text-black flex items-center justify-self-center">
                 {rowData.message.length > 15
                   ? `${rowData.message.substring(0, 15)}...`
                   : rowData.message}
@@ -160,7 +162,6 @@ const DBFeedback = () => {
         data={feedbacks.map((feedback) => ({
           ...feedback,
           userName: `${feedback.fname} ${feedback.lname}`,
-         // phoneno: <feedback className="phonenumber"></feedback>,  // Ensure this matches the Firestore field name
           timestamp: feedback.timestamp,
           feedbackType: feedback.feedbackType || "Contact",
         }))}
@@ -179,11 +180,11 @@ const DBFeedback = () => {
           <DialogContent>
             <p><strong style={{ color: 'red' }}>User Name:</strong> <span style={{ color: 'black' }}>{`${selectedFeedback.fname} ${selectedFeedback.lname}`}</span></p>
             <p><strong style={{ color: 'red' }}>Email:</strong> <span style={{ color: 'black' }}>{selectedFeedback.email}</span></p>
-           {/*} <p><strong style={{ color: 'red' }}>Phone Number:</strong> <span style={{ color: 'black' }}>{selectedFeedback.phonenumber }</span></p> */}
             <p><strong style={{ color: 'red' }}>Date:</strong> <span style={{ color: 'black' }}>{formatDate(selectedFeedback.timestamp)}</span></p>
-            <p><strong style={{ color: 'red' }}>Feedback Type:</strong> <span style={{ color: 'black' }}>{selectedFeedback.feedbackType || "Contact"}</span></p>
+            <p><strong style={{ color: 'red' }}>Feedback Type:</strong> <span style={{ color: colorMap[selectedFeedback.feedbackType] || 'black' }}>{selectedFeedback.feedbackType || "Contact"}</span></p>
             <p><strong style={{ color: 'red' }}>Feedback:</strong></p>
             <p style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: 'black' }}>{selectedFeedback.message}</p>
+            
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
