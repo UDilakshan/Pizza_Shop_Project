@@ -28,7 +28,7 @@ html,body {
   padding-bottom: 160px;
   background-attachment: fixed;
   position: relative;
-  z-index: 0; /* Ensure it's below the overlay */
+  z-index: 0; 
 }
 
 .backgroundOverlay {
@@ -37,9 +37,9 @@ html,body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.1); /* Adjust opacity if needed */
-  backdrop-filter: blur(10px); /* The blur effect */
-  z-index: 1; /* Ensure it overlays the background */
+  background: rgba(255, 255, 255, 0.1); 
+  backdrop-filter: blur(10px); 
+  z-index: 1; 
 }
 
 

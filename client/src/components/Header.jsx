@@ -14,7 +14,7 @@ import { setUserNull,setUserDetails} from '../context/actions/userActions';
 import { PiShoppingCartBold } from "react-icons/pi";
 import { getDoc, doc,setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseconfig";
-import Avatar2 from '../assets/images/OtherImages/Avatar2.png';
+import Avatar3 from '../assets/images/OtherImages/Avatar3.png';
 
 function Header() {
   
@@ -210,9 +210,9 @@ useEffect(() => {
                       <motion.div className='relative w-10 h-10'>
                          <motion.img
                             onMouseEnter={() => setIsMenu(true)} 
-                            src={Avatar2}
+                            src={Avatar3}
                             whileHover={{ scale: 1.15 }} 
-                            className='w-10 h-10 rounded-full object-cover border-2 border-white shadow-md' // Updated border width
+                            className='w-9 h-9 rounded-full object-cover border-2 border-white shadow-md' // Updated border width
                             referrerPolicy='no-referrer'
                             alt="User"
                             onError={(e) => {
