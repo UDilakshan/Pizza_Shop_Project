@@ -10,17 +10,10 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/
 import "./DBFeedback.css"; 
 
 const colorMap = {
-<<<<<<< HEAD
   Complaint: "red",
   Contact: "blue",
   Appreciation: "green",
   "Order Inquiry": "orange",
-=======
-  Complaint: 'red',
-  Contact: 'blue',
-  Appreciation: 'green',
-  "Order Inquiry": 'orange'
->>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
 };
 
 const DBFeedback = () => {
@@ -37,18 +30,7 @@ const DBFeedback = () => {
           id: doc.id,
           ...doc.data(),
         }));
-<<<<<<< HEAD
         feedbackList.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-=======
-        
-        // Sort feedbackList by timestamp in descending order
-        feedbackList.sort((a, b) => {
-          const dateA = a.timestamp?.seconds || 0;
-          const dateB = b.timestamp?.seconds || 0;
-          return dateB - dateA;
-        });
-
->>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
         setFeedbacks(feedbackList);
       } catch (error) {
         console.error("Error fetching feedbacks: ", error);
@@ -94,7 +76,6 @@ const DBFeedback = () => {
       {/* <h2 className="text-lg font-bold mb-4">User Feedbacks</h2> */}
       <DataTable
         columns={[
-<<<<<<< HEAD
           { title: "User Name", field: "userName", render: (rowData) => <p className="text-md">{rowData.userName}</p> },
           { title: "Email", field: "email", render: (rowData) => <p className="text-md">{rowData.email}</p> },
           { title: "Date", field: "timestamp", render: (rowData) => <p className="text-md">{formatDate(rowData.timestamp)}</p> },
@@ -104,75 +85,6 @@ const DBFeedback = () => {
               <div className="flex gap-2">
                 <button onClick={() => handleView(rowData)} className="text-blue-500 hover:text-blue-700"><FaEye /></button>
                 <button onClick={() => handleDelete(rowData.id)} className="text-red-500 hover:text-red-700"><FaTrash /></button>
-=======
-          {
-            title: "User Name",
-            field: "userName",
-            render: (rowData) => (
-              <p className="text-sm text-black flex items-center justify-self-center">
-                {rowData.userName}
-              </p>
-            ),
-          },
-          {
-            title: "Email",
-            field: "email",
-            render: (rowData) => (
-              <p className="text-sm text-black flex items-center justify-self-center">
-                {rowData.email}
-              </p>
-            ),
-          },
-          {
-            title: "Date",
-            field: "timestamp",
-            render: (rowData) => (
-              <p className="text-sm  text-black flex items-center justify-self-center">
-                {formatDate(rowData.timestamp)}
-              </p>
-            ),
-          },
-          {
-            title: "Feedback Type",
-            field: "feedbackType",
-            render: (rowData) => (
-              <p
-                className="text-sm  text-black flex items-center justify-self-center"
-                style={{ color: colorMap[rowData.feedbackType] || 'black' }}
-              >
-                {rowData.feedbackType}
-              </p>
-            ),
-          },
-          {
-            title: "Feedback",
-            field: "message",
-            render: (rowData) => (
-              <p className="text-xs text-black flex items-center justify-self-center">
-                {rowData.message.length > 15
-                  ? `${rowData.message.substring(0, 15)}...`
-                  : rowData.message}
-              </p>
-            ),
-          },
-          {
-            title: "Actions",
-            field: "actions",
-            render: (rowData) => (
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleView(rowData)}
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  <FaEye />
-                </button>
-                <button
-                  onClick={() => handleDelete(rowData.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <FaTrash />
-                </button>
->>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
               </div>
             ) 
           }
@@ -180,16 +92,11 @@ const DBFeedback = () => {
         data={feedbacks.map((feedback) => ({
           ...feedback,
           userName: `${feedback.fname} ${feedback.lname}`,
-<<<<<<< HEAD
-=======
-          timestamp: feedback.timestamp,
->>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
           feedbackType: feedback.feedbackType || "Contact",
         }))}
         title="User Feedbacks"
       />
       {viewDialogOpen && selectedFeedback && (
-<<<<<<< HEAD
         <Dialog open={viewDialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle style={{ backgroundColor: '#fff0f8', color: '#333' }}> {/* Title color */}
               Feedback Details
@@ -221,29 +128,6 @@ const DBFeedback = () => {
 
           <DialogActions style={{ backgroundColor: '#fff0f8', justifyContent: 'flex-end' }}>
             <Button onClick={handleClose} color="primary">Close</Button>
-=======
-        <Dialog
-          open={viewDialogOpen}
-          onClose={handleClose}
-          maxWidth="sm"
-          fullWidth
-          classes={{ paper: "custom-dialog" }} 
-        >
-          <DialogTitle>Feedback Details</DialogTitle>
-          <DialogContent>
-            <p><strong style={{ color: 'red' }}>User Name:</strong> <span style={{ color: 'black' }}>{`${selectedFeedback.fname} ${selectedFeedback.lname}`}</span></p>
-            <p><strong style={{ color: 'red' }}>Email:</strong> <span style={{ color: 'black' }}>{selectedFeedback.email}</span></p>
-            <p><strong style={{ color: 'red' }}>Date:</strong> <span style={{ color: 'black' }}>{formatDate(selectedFeedback.timestamp)}</span></p>
-            <p><strong style={{ color: 'red' }}>Feedback Type:</strong> <span style={{ color: colorMap[selectedFeedback.feedbackType] || 'black' }}>{selectedFeedback.feedbackType || "Contact"}</span></p>
-            <p><strong style={{ color: 'red' }}>Feedback:</strong></p>
-            <p style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", color: 'black' }}>{selectedFeedback.message}</p>
-            
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Close
-            </Button>
->>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
           </DialogActions>
         </Dialog>
       )}

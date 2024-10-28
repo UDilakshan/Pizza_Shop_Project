@@ -9,7 +9,7 @@ import { alertSuccess, alertNULL, alertDanger } from "../context/actions/alertAc
 import { setCartItems } from "../context/actions/cartAction";
 import { addNeworder, getAllCartItems,increaseItemQuantity } from "../api/index";
 import empty from '../assets/images/OtherImages/empty.jpg';
-//import Customization from "./Customization";
+import Customization from "./Customization";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -74,19 +74,11 @@ const Cart = () => {
       address1: address1,
       address2: address2,
       phone: phone,
-<<<<<<< HEAD
-      /* imageURL: imageURL, */
-=======
->>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
       total: currentTotal,
     };
 
     // Send the order to the server
     addNeworder(data).then((res) => {
-<<<<<<< HEAD
-      console.log("data is : " + data); 
-=======
->>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
       if (res) {
         dispatch(alertSuccess("Order submitted successfully"));
 
@@ -269,12 +261,10 @@ export const CartItemCard = ({ index, data }) => {
   const [itemTotal, setItemTotal] = useState(0);
 
   useEffect(() => {
-    const price = parseFloat(data.usualPrice) || 0; // Handle undefined values
+    const price = parseFloat(data.usualPrice) || 0;
     const quantity = parseInt(data.quantity, 10) || 0;
-    const total = price * quantity;
-    setItemTotal(total);
+    setItemTotal(price * quantity);
   }, [data.usualPrice, data.quantity]);
-  
 
   const decrementCard = (productId) => {
     // Check if the user is logged in before updating the cart
@@ -305,35 +295,33 @@ export const CartItemCard = ({ index, data }) => {
   };
 
   const incrementCard = (productId) => {
+    // Check if the user is logged in before updating the cart
     if (!user || !user.user_id) {
       dispatch(alertDanger("Please log in to update the cart"));
       setTimeout(() => {
         dispatch(alertNULL());
-        navigate("/login");
+        navigate("/login"); // Redirect to login page
       }, 2000);
       return;
     }
-  
+
+    dispatch(alertSuccess("Updated the cart item"));
+    setTimeout(() => {
+      dispatch(alertNULL());
+    }, 3000);
+
     increaseItemQuantity(user?.user_id, productId, "increment")
-      .then(() => {
-        return getAllCartItems(user?.user_id); // Ensure it returns the items
-      })
+      .then(() => getAllCartItems(user?.user_id))
       .then((items) => {
-        if (items) {
-          dispatch(setCartItems(items));
-        } else {
-          throw new Error("Failed to fetch updated items");
-        }
+        dispatch(setCartItems(items));
+        dispatch(alertNULL());
       })
       .catch((error) => {
-        console.error("Error updating cart item:", error);
-        dispatch(alertDanger("Failed to update cart!"));
-      })
-      .finally(() => {
+        console.error("Failed to update cart item:", error);
         dispatch(alertNULL());
       });
   };
-  
+
   return (
     <motion.div
       key={index}
@@ -390,3 +378,5 @@ export const CartItemCard = ({ index, data }) => {
 };
 
 export default Cart;
+
+ 
