@@ -74,13 +74,19 @@ const Cart = () => {
       address1: address1,
       address2: address2,
       phone: phone,
+<<<<<<< HEAD
       /* imageURL: imageURL, */
+=======
+>>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
       total: currentTotal,
     };
 
     // Send the order to the server
     addNeworder(data).then((res) => {
+<<<<<<< HEAD
       console.log("data is : " + data); 
+=======
+>>>>>>> 6e5e27911ed4bb2099ba05ddb882c0a84bde5f24
       if (res) {
         dispatch(alertSuccess("Order submitted successfully"));
 
