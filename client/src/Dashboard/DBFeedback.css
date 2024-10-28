@@ -1,3 +1,18 @@
+.text-sm {
+  font-size: 16px; 
+}
+
+.text-xs {
+  font-size: 14px;
+}
+
+.text-lg {
+  font-size: 18px; 
+}
+
+.dialog-content p {
+  font-size: 16px;
+}
 
   
   
@@ -19,4 +34,8 @@
   .custom-dialog .MuiDialogActions-root {
     justify-content: flex-end;
   }
+  
+  .custom-popup {
+  background-color: #fff0f8;  /* Set to your desired color */
+}
   

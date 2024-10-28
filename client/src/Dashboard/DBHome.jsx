@@ -2,17 +2,23 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../api";
 import { setAllProducts } from "../context/actions/productActions";
-import { CChart } from "@coreui/react-chartjs";
+import { CChart } from "@coreui/react-chartjs"
+import firebase from 'firebase/app';
+import { useState } from 'react';
+import {collection, getDocs } from 'firebase/firestore';
+import { db } from '../config/firebaseconfig'
 
 const DBHome = () => {
   const products = useSelector((state) => state.products);
   const dispatch = useDispatch();
+  const [orderData, setOrderData] = useState([0, 0, 0]); // Default data [preparing, cancelled, delivered]
 
-  const drinks = products?.filter((item) => item.product_category === "drinks");
-  const non_veg_pizza = products?.filter((item) => item.product_category === "non veg pizza");
-  const starters = products?.filter((item) => item.product_category === "starters");
-  const dessert = products?.filter((item) => item.product_category === "dessert");
-  const premium_non_veg = products?.filter((item) => item.product_category === "premium non veg");
+
+  const drinks = products?.filter((item) => item.category === "Drinks");
+  const non_veg_pizza = products?.filter((item) => item.category === "Non Veg Pizza");
+  const starters = products?.filter((item) => item.category === "Starters");
+  const dessert = products?.filter((item) => item.category === "Dessert");
+  const premium_non_veg = products?.filter((item) => item.category === "Premium Non Veg");
 
   useEffect(() => {
     if (!products) {
@@ -21,6 +27,37 @@ const DBHome = () => {
       });
     }
   }, [products, dispatch]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const orderCollection = collection(db, 'orders');
+      const orderSnapshot = await getDocs(orderCollection);
+      let preparingCount = 0;
+      let cancelledCount = 0;
+      let deliveredCount = 0;
+
+      orderSnapshot.forEach((doc) => {
+        const data = doc.data();
+        switch (data.sts) {
+          case 'preparing':
+            preparingCount++;
+            break;
+          case 'Cancelled':
+            cancelledCount++;
+            break;
+          case 'Delivered':
+            deliveredCount++;
+            break;
+          default:
+            break;
+        }
+      });
+
+      setOrderData([preparingCount, cancelledCount, deliveredCount]);
+    };
+
+    fetchOrders();
+  }, []);
 
   return (
     <div className='flex items-center justify-center flex-col pt-6 w-full h-full'>
@@ -33,7 +70,7 @@ const DBHome = () => {
                 labels: ["drinks", "non_veg_pizza", "starters", "dessert", "premium_non_veg"],
                 datasets: [
                   {
-                    label: 'O Pizza Monthly Sales',
+                    label: 'Category wise count',
                     backgroundColor: '#f87979',
                     data: [drinks?.length, non_veg_pizza?.length, starters?.length, dessert?.length, premium_non_veg?.length],
                   },
@@ -51,7 +88,7 @@ const DBHome = () => {
                 datasets: [
                   {
                     backgroundColor: ['#41B883', '#E46651', '#00D8FF'],
-                    data: [40, 20,20 ]
+                    data: orderData,
                   },
                 ],
               }}

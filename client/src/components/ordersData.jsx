@@ -1,9 +1,24 @@
 import React from 'react';
 import { buttonClick, staggerFadeInOut } from '../animations';
 import { motion } from 'framer-motion';
+import { getAllOrder, updateOrderSts } from '../api';
+import { setOrders } from '../context/actions/orderAction';
+import { useDispatch } from 'react-redux';
 
 const OrdersData = ({ index, data, admin }) => {
+
+  const dispatch = useDispatch();
+
   const handleClick = (orderId, sts) => {
+    updateOrderSts(orderId, sts)
+      .then((response) => {
+        getAllOrder().then((data) => {
+          dispatch(setOrders(data)); // Dispatch updated order list to Redux
+        });
+      })
+      .catch((error) => {
+        console.error('Error updating order:', error); // Handle any errors
+      });
     console.log(`Order ${orderId} marked as ${sts}`);
   };
 
@@ -22,6 +37,11 @@ const OrdersData = ({ index, data, admin }) => {
             <span className='text-headingColor font-bold'>{data?.total}</span>
           </p>
 
+          <p className='px-2 py-[2px] text-m text-headingColor font-semibold
+          capitalize rounded-md bg-emerald-400 drop-shadow-md '>
+            {data?.sts}
+          </p>
+
           <p
             className={`text-base font-semibold capitalized border border-gray-300 px-2 py-[2px] rounded-md ${
               (data.sts === 'Preparing' && 'text-orange-500 bg-orange-100') ||
@@ -29,7 +49,7 @@ const OrdersData = ({ index, data, admin }) => {
               (data.sts === 'Delivered' && 'text-emerald-500 bg-emerald-100')
             }`}
           >
-            {data?.sts}
+            
           </p>
 
           {admin && (
@@ -64,7 +84,6 @@ const OrdersData = ({ index, data, admin }) => {
         </div>
       </div>
 
-      
       {data?.carts && data.carts.length > 0 ? (
         data.carts.map((cart, j) => (
           <motion.div
@@ -75,7 +94,7 @@ const OrdersData = ({ index, data, admin }) => {
             <div className='flex items-start flex-col'>
               <p className='text-base font-semibold text-headingColor'>
               
-                {cart.category === 'Desserts' ? cart.name : cart.product_name || 'Unknown Item'}
+                {cart.category === 'Desserts' ? cart.name : cart.product_name || cart.name}
               </p>
               <div className='flex items-start gap-2'>
                 <p className='text-sm text-textColor'>Qty: {cart.quantity}</p>
@@ -88,7 +107,6 @@ const OrdersData = ({ index, data, admin }) => {
         <p>No items in the cart.</p>
       )}
 
-      {/* Customer Details */}
       <div className='flex items-start justify-start flex-col gap-2 px-6 ml-auto w-full md:w-460'>
         <h1 className='text-lg text-headingColor font-semibold'>{data?.name}</h1>
         <h1 className='text-lg text-headingColor font-semibold'>

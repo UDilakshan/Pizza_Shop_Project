@@ -74,11 +74,13 @@ const Cart = () => {
       address1: address1,
       address2: address2,
       phone: phone,
+      /* imageURL: imageURL, */
       total: currentTotal,
     };
 
     // Send the order to the server
     addNeworder(data).then((res) => {
+      console.log("data is : " + data); 
       if (res) {
         dispatch(alertSuccess("Order submitted successfully"));
 

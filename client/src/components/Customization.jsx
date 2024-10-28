@@ -12,7 +12,7 @@ import { alertSuccess, alertNULL } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
 
 
-const Customization = ({ visible, onClose, data }) => {
+const Customization = ({ visible, onClose, data, cartAddingFunction }) => {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
   const [price, setPrice] = useState("");
@@ -160,7 +160,7 @@ const Customization = ({ visible, onClose, data }) => {
                       <div className='flex items-center justify-center w-full gap-2'>
                         <motion.button whileTap={{ scale: 0.85 }}
                           type='button'
-                          onClick={handleAddToCart}
+                          onClick={cartAddingFunction}
                           className='w-[40%] flex items-center justify-center bg-pink-600 px-2 py-2 hover:bg-pink-900 rounded-2xl text-base text-white font-semibold'>
                           Add
                           <PiShoppingCartBold className='ml-2 text-white text-base' />
