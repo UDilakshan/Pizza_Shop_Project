@@ -209,10 +209,9 @@ useEffect(() => {
                     <motion.div {...SlideIn200} className='flex items-center '>
                       <motion.div className='relative w-10 h-10'>
                          <motion.img
-                            onMouseEnter={() => setIsMenu(true)} 
+                            onClick={() => setIsMenu(!isMenu)}
                             src={Avatar3}
-                            whileHover={{ scale: 1.15 }} 
-                            className='w-9 h-9 rounded-full object-cover border-2 border-white shadow-md' // Updated border width
+                            className='w-9 h-9 rounded-full object-cover border-2 border-white shadow-md'
                             referrerPolicy='no-referrer'
                             alt="User"
                             onError={(e) => {

@@ -263,4 +263,3 @@ const Customization = ({ visible, onClose, data, cartAddingFunction }) => {
 
 
 export default Customization;
-

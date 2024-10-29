@@ -8,7 +8,7 @@ import { setCartOff } from "../context/actions/displaycartAction";
 import { alertSuccess, alertNULL, alertDanger } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
 import { addNeworder, getAllCartItems,increaseItemQuantity } from "../api/index";
-import empty from '../assets/images/OtherImages/empty.jpg';
+import empty from '../assets/images/OtherImages/empty.png';
 import Customization from "./Customization";
 
 const Cart = () => {

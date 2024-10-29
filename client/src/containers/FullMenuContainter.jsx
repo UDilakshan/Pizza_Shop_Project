@@ -210,7 +210,6 @@ const FullMenuContainer = () => {
 
   return (
     <div className='backgroundMenu'>
-      
       {/* Category */}
       <motion.div
         initial={{ opacity: 0, y: 400 }}
