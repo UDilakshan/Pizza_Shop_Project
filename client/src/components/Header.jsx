@@ -42,7 +42,7 @@ function Header() {
 
   const viewClientMenu = () =>{
     setIsMenu(false);
-    setTempIsmenu(true);
+    setTempIsmenu(!tempIsmenu);
   }
         
   const viewDashboardMenu = () =>{
@@ -55,34 +55,7 @@ function Header() {
     setTempIsmenu(false);
   }
 
-  /*useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
-        if (user) {
-            await user.reload();
-            const updatedUser = firebaseAuth.currentUser;
-            dispatch(setUserDetails(updatedUser)); // Update user details in Redux
-
-            // Check if user has a profile picture
-            if (!updatedUser.photoURL) {
-                try {
-                    // Update the user's profile picture if not set
-                    await updatedUser.updateProfile({
-                        photoURL: log, // URL of the default profile picture
-                    });
-                    // Update the Redux store with the new profile picture
-                    dispatch(setUserDetails(updatedUser));
-                } catch (err) {
-                    console.log('Error updating profile picture:', err);
-                }
-            }
-        } else {
-            dispatch(setUserNull());
-        }
-    });
-
-    return () => unsubscribe();
-}, [dispatch, firebaseAuth]);*/
-
+ 
 useEffect(() => {
   const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
     setLoading(true);
@@ -126,13 +99,19 @@ useEffect(() => {
   return () => unsubscribe();
 }, [dispatch, firebaseAuth]);
 
+
+
     if(!headerview) return null;
+
 
   return (
     <div className='fixed z-50 w-screen top-0 h-24 p-3 px-4 md:p-6 md:px-16 cursor-pointer bg-black'>
 
 
         {/* desktop */}
+
+
+            {/* Navigation Bar */}
 
         <div className='hidden md:flex w-full h-full items-center justify-between'>
               <Link to = {"/"} className='flex items-center gap-2'>
@@ -141,6 +120,7 @@ useEffect(() => {
               </Link>
 
               <div className='flex items-center gap-8'>
+
               <motion.ul onClick={()=>setIsMenu(false)} {...SlideIn200}
               className='flex items-center gap-8'>
                       <Link to = {"/"}>
@@ -181,10 +161,11 @@ useEffect(() => {
               </motion.ul>
 
 
+
+            {/* Cart */}
               
               <motion.div
-                 {...SlideIn200} 
-                 {...buttonClick} 
+                 {...SlideIn200} {...buttonClick} 
                  onClick={() => dispatch(setCartOn())} 
                className='mb-2 relative flex items-center rounded-full  justify-center'>
                <PiShoppingCartBold className='text-red-100 text-2xl cursor-pointer' />
@@ -208,7 +189,7 @@ useEffect(() => {
                   <div className='relative cursor-pointer flex items-center gap-3'>
                     <motion.div {...SlideIn200} className='flex items-center '>
                       <motion.div className='relative w-10 h-10'>
-                         <motion.img
+                         <motion.img {...buttonClick}
                             onClick={() => setIsMenu(!isMenu)}
                             src={Avatar3}
                             className='w-9 h-9 rounded-full object-cover border-2 border-white shadow-md'
@@ -227,7 +208,7 @@ useEffect(() => {
                      
                         {
                               isMenu && (
-                                  <motion.div {...SlideIn200} onMouseLeave={()=>setIsMenu(false)} className='w-36 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-12 -right-10'>
+                                  <motion.div {...SlideIn200} onClick={()=>setIsMenu(false)} className='w-36 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-12 -right-10'>
 
                                 {   
                                     user && (       
@@ -275,7 +256,11 @@ useEffect(() => {
                             </motion.div>
                           </Link>
                         )
-                      ) : (
+                      ) : 
+                      
+
+
+                      (
                         <Link to={"/Login"}>
                           <motion.div {...SlideIn200} {...buttonClick} className='border border-l-pink-50 rounded-md px-2 py-1 hover:bg-white hover:text-orange-500 text-red-100 text-base duration-100 transition-all ease-in-out cursor-pointer flex gap-1'>
                             Login <MdLogin {...SlideIn200} className='mt-1' />
@@ -289,17 +274,22 @@ useEffect(() => {
 
         {/* mobile */}
       
-        <div onClick={()=>{setIsMenu(false); setTempIsmenu(false)}} className='flex items-center justify-between md:hidden w-full h-full'>
+        <div className='flex items-center justify-between md:hidden w-full h-full'>
         
-          <motion.div onClick={hideAllMenu} {...SlideIn200} {...buttonClick} className='relative flex items-center justify-center'>
-            <FaBasketShopping className='text-red-100 text-2xl cursor-pointer' 
-            /* onClick={showCart} */ />
-           {/*  {
-              cartItems && cartItems.length==0 && ( */}
+
+        {/* Cart */}
+
+        <motion.div onClick={hideAllMenu} {...SlideIn200} {...buttonClick} className='relative flex items-center justify-center'>
+            <PiShoppingCartBold onClick={() => dispatch(setCartOn())}  className='text-red-100 text-2xl cursor-pointer'  />
+                   {
+                   cart && cart?.length > 0 && 
+	(
                 <div className='absolute -top-2 -right-2 w-5 h-5 rounded-full bg-cartNumBg flex items-center justify-center'>
-                <p className='text-xs text-white font-semibold'>{/* {cartItems.length} */}2</p>
+                <p className='text-xs text-white font-semibold'>{cart?.length}</p>
             </div>
+	)}
          </motion.div>
+
 
           <Link onClick={hideAllMenu} to = {"/"} className='flex items-center gap-2'>
               <img src={Logo} className='object-cover w-12' alt="Logo" />
@@ -308,15 +298,21 @@ useEffect(() => {
         
           <div onClick={()=>setTempIsmenu(false)} className='relative'>
 
+
+
             {/* User details */}
                   
              {
                   user? (
 
+                    user.emailVerified ? (
+                    
                     <div className='relative cursor-pointer'>
-                    <motion.div {...SlideIn200} className='w-10 h-10 drop-shadow-md cursor-pointer overflow-hidden rounded-full'>
-                      <motion.img onMouseEnter={viewDashboardMenu}
-                      src={user?.picture || log} 
+                    <motion.div {...SlideIn200} className='w-8 h-8 drop-shadow-md cursor-pointer overflow-hidden rounded-full'>
+                      <motion.img
+                      {...buttonClick}
+                      onClick={() => setIsMenu(!isMenu)}
+                      src={Avatar3}
                       whileHover={{scale : 1.15}} 
                       className='w-full h-full object-cover'
                       referrerPolicy='no-referrer' 
@@ -326,7 +322,7 @@ useEffect(() => {
 
                     {
                           isMenu && (
-                              <motion.div {...SlideIn200} onMouseLeave={()=>setIsMenu(false)} className='w-36 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-12 right-2'>
+                              <motion.div {...SlideIn200}  className='w-36 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-12 right-2'>
 
                             {   
                                 user && (       
@@ -366,26 +362,46 @@ useEffect(() => {
 
                    </div>
 
-            ) :  <>
+                      ) :
+
+                      (
+
+                        <>
+                        <Link to = {"/Login"}>
+                            <motion.div {...SlideIn200} {...buttonClick} className='border border-l-pink-50 rounded-md px-2 py-1 hover:bg-white  hover:text-orange-500 text-red-100 text-base duration-100 transition-all ease-in-out cursor-pointer flex gap-1'>Login <MdLogin {...SlideIn200} className='mt-1'/>
+                            </motion.div>
+                         </Link>
+              </>
+
+                      )
+
+            ) :  
+            
+            (
+            <>
                       <Link to = {"/Login"}>
                           <motion.div {...SlideIn200} {...buttonClick} className='border border-l-pink-50 rounded-md px-2 py-1 hover:bg-white  hover:text-orange-500 text-red-100 text-base duration-100 transition-all ease-in-out cursor-pointer flex gap-1'>Login <MdLogin {...SlideIn200} className='mt-1'/>
                           </motion.div>
                        </Link>
             </>
             
+
+            )
             
 
           }
         </div>
+
+
+          
+          {/* Menu item */}
          
           <div className='relative'>    
               <motion.div
               {...SlideIn200}
               {...buttonClick}>
-                <TfiMenuAlt onMouseEnter={viewClientMenu} className='font-pacifico text-slate-100 text-xl font-bold' />
+                <TfiMenuAlt onClick={viewClientMenu} className='font-pacifico text-slate-100 text-xl font-bold' />
               </motion.div>
-
-
 
               {
                 tempIsmenu && (                    
@@ -396,7 +412,7 @@ useEffect(() => {
                   exit = {{opacity:0, x: 200, scale: 0.6 }} 
                   className='w-40 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-10 right-0'>
 
-              <ul onMouseLeave={()=>setTempIsmenu(false)}
+              <ul onClick={()=>setTempIsmenu(false)}
                   className='flex flex-col gap-1'>
                 <Link to = {"/"}>
                   <motion.li {...buttonClick}>

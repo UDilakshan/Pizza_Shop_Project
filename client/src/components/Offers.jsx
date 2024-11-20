@@ -95,8 +95,8 @@ function Offers() {
 
   return (
     <div>
-        <div className='flex items-center justify-center md:mt-12 mt-6'>
-        <p className='md:text-3xl text-xl font-semibold capitalize text-indigo-800 relative  '>
+        <div className='flex items-center justify-center md:mt-12 mt-6 '>
+        <p className='md:text-2xl text-xl font-bold capitalize text-black relative bg-white px-16 py-2 rounded-3xl'>
          OPizza Offers
         </p>
     </div>

@@ -209,7 +209,7 @@ const FullMenuContainer = () => {
   }, [activeCategory, categoryData]);
 
   return (
-    <div className='backgroundMenu'>
+    <div className='backgroundMenu '>
       {/* Category */}
       <motion.div
         initial={{ opacity: 0, y: 400 }}

@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "./context/actions/userActions";
 import { fadeInOut } from "./animations";
 import { Alert, MainLoader, Header, Footer, Dashboard, Profile, ContactUs, AboutUs, 
-HomeContainer, FullMenuContainer,ResetPassword} from './components';
+HomeContainer, FullMenuContainer,ResetPassword, FAQs, PrivacyPolicy }from './components';
 import { setCartItems } from "./context/actions/cartAction";
 import { getAllCartItems} from "./api";
 
@@ -45,17 +45,23 @@ const App = () => {
 
 
 
-const useHeaderVisibility = () => {
-  const location = useLocation();
-  return location.pathname !== '/Dashboard' 
-  && location.pathname !== '/Dashboard/home' 
-  && location.pathname !== '/Dashboard/orders' 
-  && location.pathname !== '/Dashboard/items'
-  && location.pathname !== '/Dashboard/addnewitems'
-  && location.pathname !== '/Dashboard/users'
-  && location.pathname !== '/Dashboard/feedback'
-  && location.pathname !== '/Login'
-};
+    const useHeaderVisibility = () => {
+      const location = useLocation();
+      return location.pathname !== '/Dashboard' && 
+             location.pathname !== '/Dashboard/home' &&
+             location.pathname !== '/Dashboard/orders' &&
+             location.pathname !== '/Dashboard/items' &&
+             location.pathname !== '/Dashboard/addnewitems' &&
+             location.pathname !== '/Dashboard/users' &&
+             location.pathname !== '/Dashboard/feedback' &&
+             location.pathname !== '/Login' &&
+             location.pathname !== '/Profile' && 
+             location.pathname !== '/Profile/deleteaccount' &&
+             location.pathname !== '/Profile/edit' &&
+             location.pathname !== '/Profile/feedback' &&
+             location.pathname !== '/Profile/history';
+    };
+
 const useFooterVisibility = () => {
   const location = useLocation();
   return location.pathname !== '/Dashboard' 
@@ -73,6 +79,7 @@ const useFooterVisibility = () => {
   && location.pathname !== '/Profile/feedback'
   && location.pathname !== '/Profile/history'
 };
+
 const showHeader = useHeaderVisibility();
 const showFooter = useFooterVisibility();
 
@@ -84,19 +91,23 @@ const showFooter = useFooterVisibility();
             <MainLoader />
           </motion.div> 
       )}
-          {showHeader && <Header />}
+          
           <main className="flex-grow">
+          {showHeader && <Header />} 
           <Routes>
             <Route path='/' element={<HomeContainer />} />
             <Route path='/Login' element={<Login />} />
             <Route path="/reset-password/:oobCode" element={<ResetPassword/>} />
             <Route path='/ContactUs' element={<ContactUs/>} />
             <Route path='/AboutUs' element={<AboutUs/>} />
+            <Route path='/FAQs' element={<FAQs/>} />
+            <Route path = '/PrivacyPolicy' element={<PrivacyPolicy/>} />
             <Route path="/FullMenuContainer" element={<FullMenuContainer />} />  
             <Route path="/Dashboard/*" element={<Dashboard />} />  
             <Route path="/Profile/*" element={<Profile />} />  
   
          </Routes>
+         {showFooter && <Footer />}
          </main>
          
         { alert?.type && <Alert type={alert?.type} message={alert?.message}/>}
@@ -105,5 +116,3 @@ const showFooter = useFooterVisibility();
 }
 
 export default App
-
-

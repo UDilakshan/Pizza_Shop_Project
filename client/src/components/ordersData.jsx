@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { buttonClick, staggerFadeInOut } from '../animations';
 import { motion } from 'framer-motion';
 import { getAllOrder, updateOrderSts } from '../api';
@@ -6,18 +6,25 @@ import { setOrders } from '../context/actions/orderAction';
 import { useDispatch } from 'react-redux';
 
 const OrdersData = ({ index, data, admin }) => {
-
   const dispatch = useDispatch();
+  const [status, setStatus] = useState(data.sts); 
+  const [loading, setLoading] = useState(false);
 
   const handleClick = (orderId, sts) => {
+    setLoading(true); 
     updateOrderSts(orderId, sts)
-      .then((response) => {
-        getAllOrder().then((data) => {
-          dispatch(setOrders(data)); // Dispatch updated order list to Redux
-        });
+      .then(() => {
+        setStatus(sts); 
+        return getAllOrder();
+      })
+      .then((orders) => {
+        dispatch(setOrders(orders));
       })
       .catch((error) => {
-        console.error('Error updating order:', error); // Handle any errors
+        console.error('Error updating order:', error);
+      })
+      .finally(() => {
+        setLoading(false); // End loading state
       });
     console.log(`Order ${orderId} marked as ${sts}`);
   };
@@ -37,19 +44,16 @@ const OrdersData = ({ index, data, admin }) => {
             <span className='text-headingColor font-bold'>{data?.total}</span>
           </p>
 
-          <p className='px-2 py-[2px] text-m text-headingColor font-semibold
-          capitalize rounded-md bg-emerald-400 drop-shadow-md '>
-            {data?.sts}
-          </p>
+         
 
           <p
             className={`text-base font-semibold capitalized border border-gray-300 px-2 py-[2px] rounded-md ${
-              (data.sts === 'Preparing' && 'text-orange-500 bg-orange-100') ||
-              (data.sts === 'Cancelled' && 'text-red-500 bg-red-100') ||
-              (data.sts === 'Delivered' && 'text-emerald-500 bg-emerald-100')
+              (status === 'Preparing' && 'text-orange-500 bg-orange-100') ||
+              (status === 'Cancelled' && 'text-red-500 bg-red-100') ||
+              (status === 'Delivered' && 'text-emerald-500 bg-emerald-100')
             }`}
           >
-            
+            {status}
           </p>
 
           {admin && (
@@ -83,6 +87,12 @@ const OrdersData = ({ index, data, admin }) => {
           )}
         </div>
       </div>
+
+
+
+       
+
+
 
       {data?.carts && data.carts.length > 0 ? (
         data.carts.map((cart, j) => (

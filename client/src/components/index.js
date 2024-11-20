@@ -46,3 +46,5 @@ export {default as ProDeleteAccount} from "../Profile/ProDeleteAccount";
 
 export {default as Cart} from"./Cart";
 //export {default as SliderCart}from "./SliderCart";
+export {default as FAQs} from "./FAQs";
+export {default as PrivacyPolicy} from "./PrivacyPolicy";
