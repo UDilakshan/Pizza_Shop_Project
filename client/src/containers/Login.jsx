@@ -1,26 +1,6 @@
 import React, { useEffect, useState } from "react";
 import loginbg from '../assets/images/OtherImages/loginbg.jpeg';
 import Logo from "../assets/images/OtherImages/Logo2.png";
-import { LoginInput } from "../components";
-import { FaEnvelope, FaLock, FaUser, FaPhone, FcGoogle,FaMapMarkedAlt } from "../assets/icons/index";
-import { motion } from "framer-motion";
-import { buttonClick } from "../animations";
-import { useNavigate } from "react-router-dom";
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile } from "firebase/auth";
-import { app } from "../config/firebaseconfig";
-import { validateUserJWTToken } from "../api";
-import { setUserDetails } from "../context/actions/userActions";
-import { useDispatch, useSelector } from "react-redux";
-import { alertSuccess, alertWarning, alertNULL } from "../context/actions/alertActions";
-
-const Login = () => {
-  const [userEmail, setUserEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm_password, setConfirm_password] = useState("");
-  const [user_name, setUser_name] = useState('');
-  const [phone_number, setPhone_number] = useState('');import React, { useEffect, useState } from "react";
-import loginbg from '../assets/images/OtherImages/loginbg.jpeg';
-import Logo from "../assets/images/OtherImages/Logo2.png";
 import  log  from '../assets/images/OtherImages/log.png';
 import { LoginInput } from "../components";
 import { FaEnvelope, FaLock, FaUser, FaPhone, FcGoogle,FaMapMarkedAlt } from "../assets/icons/index";
