@@ -3,13 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import { motion } from "framer-motion";
 import { buttonClick, slideIn } from "../animations";
-import { BiChevronRight } from "react-icons/bi";
+import { BiChevronRight} from "react-icons/bi";
+import {FcClearFilters} from "react-icons/fc";
 import { setCartOff } from "../context/actions/displaycartAction";
 import { alertSuccess, alertNULL, alertDanger } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
 import { addNeworder, getAllCartItems,increaseItemQuantity } from "../api/index";
 import empty from '../assets/images/OtherImages/empty.jpg';
-import Customization from "./Customization";
+import { clearCartItems } from "../context/actions/cartAction";
+//import Customization from "./Customization";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -29,7 +31,7 @@ const Cart = () => {
     let tot = 0;
     if (cart) {
       cart.forEach((item) => {
-        const price = parseFloat(item.usualPrice);
+        const price = parseFloat(item.usualPrice ||  item.smallPrice || item.largePrice || item.mediumPrice);
         const quantity = parseInt(item.quantity, 10);
         if (!isNaN(price) && !isNaN(quantity)) {
           tot += price * quantity;
@@ -59,7 +61,7 @@ const Cart = () => {
     let currentTotal = 0;
     if (cart && cart.length > 0) {
       currentTotal = cart.reduce((acc, item) => {
-        const price = parseFloat(item.usualPrice);
+        const price = parseFloat(item.usualPrice ||  item.smallPrice || item.largePrice || item.mediumPrice);
         const quantity = parseInt(item.quantity, 10);
         return acc + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity);
       }, 0);
@@ -113,6 +115,28 @@ const Cart = () => {
       setPhone(value);
     }
   };
+  const handleClearCart = async () => {
+    if (!user || !user.user_id) {
+      dispatch(alertDanger("Please log in to clear the cart"));
+      setTimeout(() => dispatch(alertNULL()), 3000);
+      return;
+    }
+  
+    try {
+      const success = await clearCartItems(user.user_id);
+      if (success) {
+        dispatch(clearCartItems()); // Clear the cart in Redux
+        dispatch(alertSuccess("Cart cleared successfully"));
+      } else {
+        dispatch(alertDanger("Failed to clear the cart"));
+      }
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      dispatch(alertDanger("Failed to clear the cart"));
+    } finally {
+      setTimeout(() => dispatch(alertNULL()), 3000);
+    }
+  };
 
   return (
     <motion.div
@@ -127,15 +151,22 @@ const Cart = () => {
         >
           <BiChevronRight className="text-[40px] text-white" />
         </motion.i>
-        <p className="text-2xl text-white font-bold">Your Cart</p>
+        <p className="text-2xl text-white font-bold">Your Card</p>
+        <motion.i
+          {...buttonClick}
+          className="cursor-pointer"
+          onClick={handleClearCart}
+        >
+          <FcClearFilters className="text-[40px] text-white" />
+        </motion.i>
       </div>
 
       <div className="flex-1 flex flex-col items-start justify-start bg-white h-full py-6 gap-3 overflow-y-auto rounded-t-xl">
         {cart && cart.length > 0 ? (
           <>
             <div className="flex flex-col w-full items-start justify-start gap-3 h-[60%] overflow-y-scroll px-4">
-              {cart.map((item, i) => (
-                <CartItemCard key={i} index={i} data={item} />
+              { cart.map((item , i) => (
+                < CartItemCard  key={i} index={i} data={item} />
               ))}
             </div>
 
@@ -160,7 +191,7 @@ const Cart = () => {
               className="w-40 h-40 rounded-full object-contain"
               alt="Empty Cart"
             />
-            <p className="text-xl text-gray-700 font-semibold">Your cart is empty</p>
+            <p className="text-xl text-gray-700 font-semibold">Your card is empty</p>
             <p className="text-xl text-gray-700 font-semibold">Continue purchasing!</p>
           </div>
         )}
@@ -261,10 +292,12 @@ export const CartItemCard = ({ index, data }) => {
   const [itemTotal, setItemTotal] = useState(0);
 
   useEffect(() => {
-    const price = parseFloat(data.usualPrice) || 0;
+    const price = parseFloat(data.usualPrice ||  data.smallPrice || data.largePrice || data.mediumPrice)|| 0; // Handle undefined values
     const quantity = parseInt(data.quantity, 10) || 0;
-    setItemTotal(price * quantity);
+    const total = price * quantity;
+    setItemTotal(total);
   }, [data.usualPrice, data.quantity]);
+  
 
   const decrementCard = (productId) => {
     // Check if the user is logged in before updating the cart
@@ -286,6 +319,7 @@ export const CartItemCard = ({ index, data }) => {
       .then(() => getAllCartItems(user?.user_id))
       .then((items) => {
         dispatch(setCartItems(items));
+        
         dispatch(alertNULL());
       })
       .catch((error) => {
@@ -295,33 +329,37 @@ export const CartItemCard = ({ index, data }) => {
   };
 
   const incrementCard = (productId) => {
-    // Check if the user is logged in before updating the cart
     if (!user || !user.user_id) {
       dispatch(alertDanger("Please log in to update the cart"));
       setTimeout(() => {
         dispatch(alertNULL());
-        navigate("/login"); // Redirect to login page
+        navigate("/login");
       }, 2000);
       return;
     }
-
-    dispatch(alertSuccess("Updated the cart item"));
-    setTimeout(() => {
-      dispatch(alertNULL());
-    }, 3000);
-
+  
     increaseItemQuantity(user?.user_id, productId, "increment")
-      .then(() => getAllCartItems(user?.user_id))
+      .then(() => {
+        return getAllCartItems(user?.user_id); // Ensure it returns the items
+      })
       .then((items) => {
-        dispatch(setCartItems(items));
-        dispatch(alertNULL());
+        if (items) {
+          dispatch(setCartItems(items));
+        } else{
+          throw new Error("Failed to fetch updated items");
+        }
       })
       .catch((error) => {
-        console.error("Failed to update cart item:", error);
+        console.error("Error updating cart item:", error);
+        dispatch(alertDanger("Failed to update cart!"));
+      })
+      .finally(() => {
         dispatch(alertNULL());
       });
   };
+  
 
+  
   return (
     <motion.div
       key={index}
@@ -333,27 +371,29 @@ export const CartItemCard = ({ index, data }) => {
         alt=""
       />
       <div className="flex items-center justify-start gap-1 w-full">
-        <div>
-          <p className="text-lg text-gray-800 font-semibold">
-            {data?.product_name}
-            <span className="text-sm block capitalize text-gray-500">
-              {data.product_category}
+        
+          <p className="text-lg text-black-800 font-semibold">
+            {data?.product_name }
+
+            <span className="text-sm block capitalize text-gray-800">
+              {data?.product_category}
             </span>
+
           </p>
           <p className="text-sm flex items-center justify-center gap-1 font-semibold text-green-500">
             Rs {itemTotal}/=
           </p>
-          {data.size && (
-            <span className="text-sm block capitalize text-gray-500">
+          {data?.size && (
+            <span className="text-sm block capitalize text-gray-800">
               Size: {data.size}
             </span>
           )}
-          {data.cheeseAdded && (
-            <span className="text-sm block capitalize text-gray-500">
-              Extra Cheese
+          {data?.cheeseAdded && (
+            <span className="text-sm block capitalize text-gray-800">
+            Extra Cheese 
             </span>
           )}
-        </div>
+        
       </div>
 
       <div className="ml-auto flex items-center justify-center gap-3">
@@ -378,5 +418,3 @@ export const CartItemCard = ({ index, data }) => {
 };
 
 export default Cart;
-
- 
