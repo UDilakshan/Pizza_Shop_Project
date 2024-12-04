@@ -6,7 +6,7 @@ import { getAuth,onAuthStateChanged} from "firebase/auth";
 import  log  from '../assets/images/OtherImages/log.png';
 import { setCartOn } from '../context/actions/displaycartAction';
 import Logo from "../assets/images/OtherImages/Logo.png";
-import { Link, useNavigate  } from "react-router-dom";
+import { Link, useNavigate, useLocation  } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { buttonClick, SlideIn200 } from '../animations';
 import { setUserNull,setUserDetails} from '../context/actions/userActions';
@@ -27,6 +27,12 @@ function Header() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
+    const location = useLocation();
+
+
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [location]);
 
     const logout = async () => {
       setIsMenu(false);
@@ -54,6 +60,33 @@ function Header() {
     setIsMenu(false);
     setTempIsmenu(false);
   }
+
+  const handleMenuClick = () => {
+    if (location.pathname !== "/") {
+        // Navigate to Home first
+        navigate("/");
+        setTimeout(() => {
+            scrollToMenu();
+        }, 100); // Delay to ensure the page has loaded
+    } else {
+        // If already on Home, scroll directly
+        scrollToMenu();
+    }
+};
+
+const scrollToMenu = () => {
+  const menuDiv = document.querySelector("#menuSection");
+  if (menuDiv) {
+    // Define yOffset based on screen size
+    const isMobile = window.innerWidth <= 768; // Adjust this breakpoint as needed
+    const yOffset = isMobile ? -400 : -320; // Mobile offset: -400, Desktop offset: -320
+
+    const yPosition = menuDiv.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+    window.scrollTo({ top: yPosition, behavior: "smooth" });
+  }
+};
+
 
  
 useEffect(() => {
@@ -105,7 +138,7 @@ useEffect(() => {
 
 
   return (
-    <div className='fixed z-50 w-screen top-0 h-24 p-3 px-4 md:p-6 md:px-16 cursor-pointer bg-black'>
+    <div className='fixed z-40 w-screen top-0 h-24 p-3 px-4 md:p-6 md:px-16 cursor-pointer bg-black'>
 
 
         {/* desktop */}
@@ -132,14 +165,13 @@ useEffect(() => {
                       </motion.li>
                     </Link>
 
-                  <Link to={'/FullMenuContainer'}>
                   <motion.li{...buttonClick} >
-                            <div className='flex gap-1 text-base text-red-100 hover:text-orange-500 duration-100 transition-all ease-in-out cursor-pointer'>
+                            <div onClick={handleMenuClick} className='flex gap-1 text-base text-red-100 hover:text-orange-500 duration-100 transition-all ease-in-out cursor-pointer'>
                                 <BiSolidFoodMenu className='mt-[2.5px]'/>
                                 <p>Menu</p>
                             </div>  
                       </motion.li>
-                    </Link>
+                   
 
                   <Link to = {"/AboutUs"}>
                   <motion.li {...buttonClick} >
@@ -283,11 +315,11 @@ useEffect(() => {
             <PiShoppingCartBold onClick={() => dispatch(setCartOn())}  className='text-red-100 text-2xl cursor-pointer'  />
                    {
                    cart && cart?.length > 0 && 
-	(
+  (
                 <div className='absolute -top-2 -right-2 w-5 h-5 rounded-full bg-cartNumBg flex items-center justify-center'>
                 <p className='text-xs text-white font-semibold'>{cart?.length}</p>
             </div>
-	)}
+  )}
          </motion.div>
 
 
@@ -400,7 +432,7 @@ useEffect(() => {
               <motion.div
               {...SlideIn200}
               {...buttonClick}>
-                <TfiMenuAlt onClick={viewClientMenu} className='font-pacifico text-slate-100 text-xl font-bold' />
+                <TfiMenuAlt onClick={viewClientMenu} className=' mt- font-pacifico text-slate-100 text-xl font-bold' />
               </motion.div>
 
               {
@@ -425,16 +457,17 @@ useEffect(() => {
                   </motion.li>
                 </Link>
 
-              <Link to ={"/FullMenuContainer"}>
-                <motion.li {...buttonClick}>
-                        <div className='flex hover:bg-orange-500 hover:text-slate-100 duration-100
-                        transition-all ease-in-out cursor-pointer' onClick={()=>setTempIsmenu(false)}>
+
+                <motion.li{...buttonClick} >
+                  <div onClick={handleMenuClick}>
+                  <div onClick={()=>setTempIsmenu(false)} className='flex hover:bg-orange-500 hover:text-slate-100 duration-100 transition-all ease-in-out cursor-pointer'>
                         <BiSolidFoodMenu className='mt-1 ml-4'/>
-                        <p className='text-lg px-1'>
-                          Menu </p>
-                        </div>  
-                  </motion.li>
-              </Link>
+                        <p className='text-lg px-1'>Menu</p>
+                    </div> 
+                  </div>
+                     
+                      </motion.li>
+                      
 
               <Link to = {"/AboutUs"}>
                 <motion.li {...buttonClick}>

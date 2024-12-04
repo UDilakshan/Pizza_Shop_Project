@@ -174,3 +174,16 @@ export const deleteUser = (userId) => {
 export const updateUser = (userId, updatedUserData) => {
     return axios.put(`/api/users/${userId}`, updatedUserData);
 };
+
+
+// Clear Cart
+export const clearCart = async (user_id) => {
+    try {
+      const res = await axios.delete(`${baseURL}/api/products/clearCart/${user_id}`);
+      return res.data.data; // Assuming the response contains the cleared cart data
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+      return null;
+    }
+  };
+  

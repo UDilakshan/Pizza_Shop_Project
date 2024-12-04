@@ -1,45 +1,61 @@
-
-/* Used for customize the size and extra things of the product */
-
-
 import React, { useState } from 'react';
 import { IoIosCloseCircle } from "react-icons/io";
 import {useDispatch, useSelector} from "react-redux";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router';
 import { GiFullPizza } from "react-icons/gi";
 import { PiShoppingCartBold } from "react-icons/pi";
 import { alertSuccess, alertNULL } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
-
-
+import { setCartOn } from '../context/actions/displaycartAction';
+import { addNewItemToCart, getAllCartItems } from "../api";
+import axios from 'axios';
+ 
 const Customization = ({ visible, onClose, data }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); 
+
   const cart = useSelector((state) => state.cart);
-  const [price, setPrice] = useState("");
+  const user = useSelector((state) => state.user);
+
+  const [price, setPrice] = useState("0.00");
   const [selectedSize, setSelectedSize] = useState(null);
   const [optionView, setOptionView] = useState(false);
   const [cheeseShow, setCheeseShow] = useState(false);
   const [cheeseAdded, setCheeseAdded] = useState(false);
   const [totalPrice, setTotalPrice] = useState("0.00");
   const [cartVisible, setCartVisible] = useState(false);
+  
+  const resetState = () => {
+    setPrice("0.00");
+    setSelectedSize(null);
+    setCheeseShow(false);
+    setCheeseAdded(false);
+    setTotalPrice("0.00");
+  };
 
   const handleClose = (e) => {
-    if (e.target.id === 'outOfBorder') onClose();
+    if (e.target.id === 'outOfBorder') {
+      resetState();
+      onClose();}
   };
 
 
-  let cheese = "100";
+  let cheese = "100.00";
+
+  const updateTotalPrice = (basePrice) => {
+    const extraCheeseCost = cheeseAdded ? parseFloat(cheese) : 0;
+    setTotalPrice((parseFloat(basePrice) + extraCheeseCost).toFixed(2));
+  };
+
 
   const handleSizeClick = (e, newSize, newPrice) => { 
     if (selectedSize === newSize) {
-      setTotalPrice("0.00");
-      setPrice("0.00");
-      setSelectedSize(null);
-      setCheeseShow(false);
+      resetState();
     } else {
-      setPrice(newPrice);
-      setTotalPrice((parseFloat(newPrice) + (cheeseAdded ? parseFloat(cheese) : 0)).toFixed(2));
       setSelectedSize(newSize);
+      setPrice(newPrice);
+      updateTotalPrice(newPrice);
       setCheeseShow(true);
     }
   };
@@ -53,11 +69,25 @@ const Customization = ({ visible, onClose, data }) => {
     setCheeseAdded(!cheeseAdded);
   };
 
-  const handleAddToCart = () => {
-    // Example logic to handle adding to cart
-    console.log("Adding to cart...");
-    console.log("Size:", selectedSize);
-    console.log("Total Price:", totalPrice);
+  const handleAddToCart =  async (data) => { 
+    // Check if the user is logged in
+    if (!user || !user.user_id) {
+      // If not logged in, show an alert and redirect to the login page
+      dispatch(alertSuccess("Please log in to add items to the cart"));
+      setTimeout(() => {
+        dispatch(alertNULL());
+        navigate('/login'); // Redirect to login page
+      }, 2000);
+      return; // Prevent further execution
+    }
+  
+    // Check if a size is selected
+    if (!selectedSize) {
+      // Show an alert if no size is selected
+      dispatch(alertSuccess("Please select a size before adding to cart"));
+      setTimeout(() => dispatch(alertNULL()), 2000);
+      return; // Prevent adding to cart if size is not selected
+    }
   
     const item = {
       productId: data.id, // Adjust as per your data structure
@@ -66,22 +96,28 @@ const Customization = ({ visible, onClose, data }) => {
       usualPrice: price, // Current price with size and cheese
       quantity: 1, // Default quantity or get it from a state if needed
       size: selectedSize,
-      cheeseAdded: cheeseAdded,
+       cheeseAdded,
+       totalPrice,
     };
   
     // Dispatch action to add item to cart
-    dispatch(setCartItems([...cart, item])); // Ensure you have a way to add items correctly
+    const updatedCart = Array.isArray(cart) ? [...cart, item] : [item];
+    await addNewItemToCart(user.user_id, data);
+    const items = await getAllCartItems(user.user_id);
+    dispatch(setCartItems(items));
+    dispatch(setCartItems(updatedCart));
     dispatch(alertSuccess("Item added to cart"));
     setTimeout(() => {
       dispatch(alertNULL());
-    }, 3000);
+    }, 2000);
     //setCartVisible(true);
   
     // Close the customization modal if needed
+    resetState();
     onClose();
   };
 
-  if (!visible) return null;
+  if (!visible) return ;
   return (
     <div onClick={handleClose} id='outOfBorder' className='fixed inset-0 z-50 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center'>
       <div className="bg-white p-4 rounded-lg relative w-[90%] md:w-[60%] border border-gray-300 md:h-[70%] h-[80%] mt-5">
@@ -97,10 +133,7 @@ const Customization = ({ visible, onClose, data }) => {
                 <div className='hidden border rounded border-gray-400 p-2 md:flex flex-col gap-2 w-[50%] h-[75%]'>
                   <div className='w-full flex items-center justify-center p-2'>
                     <img src={data?.imageURL} alt="image" className='w-[65%] h-[65%] object-cover rounded-xl' />
-                  </div>
-                  <div className='w-full h-full flex items-center justify-center'>
-                    <p className='flex items-center justify-center text-black font-bold text-xl'>{data?.name}</p>
-                  </div>
+                  </div> 
                   <div className='w-full h-full flex items-center justify-center mb-3'>
                     <p className='flex items-center justify-center text-pink-600'>{data?.description}</p>
                   </div>
@@ -108,13 +141,14 @@ const Customization = ({ visible, onClose, data }) => {
 
                   <div className='hidden md:flex w-[50%] h-[90%]'>
                     <div className='border rounded border-gray-400 w-full h-auto flex flex-col gap-4 p-2'>
-                      <motion.div className='ml-1 flex items-center justify-start'
+                      <motion.div className='ml-1 flex items-center justify-start' onClick={() => setOptionView(!optionView)}
                         initial={{ opacity: 0, x: 200 }} 
                         animate={{ opacity: 1, x: 0 }} 
-                        exit={{ opacity: 0, x: 200 }}>
+                        exit={{ opacity: 0, x: 200 }}
+                        whileTap={{ scale: 0.95 }}>
                         <p className='text-black text-lg border-2 bg-orange-100 border-orange-600 rounded-xl p-1 w-full flex items-center justify-center'>Select size here...</p>
                       </motion.div>
-      
+                      {optionView && (
                         <>
                           <motion.div className='flex flex-col gap-2 border-1 border-dotted border-gray-300'
                             initial={{ opacity: 0, y: 200 }} 
@@ -156,13 +190,15 @@ const Customization = ({ visible, onClose, data }) => {
                           )}
 
                         </>
-
+                       )}
                       <div className='flex items-center justify-center w-full gap-2'>
                         <motion.button whileTap={{ scale: 0.85 }}
                           type='button'
-                          onClick={handleAddToCart}
+                          onClick={() => {
+                            handleAddToCart(data)
+                            dispatch(setCartOn()); } }
                           className='w-[40%] flex items-center justify-center bg-pink-600 px-2 py-2 hover:bg-pink-900 rounded-2xl text-base text-white font-semibold'>
-                          Add
+                          Add to
                           <PiShoppingCartBold className='ml-2 text-white text-base' />
                         </motion.button>
                         <p className='w-[40%] px-2 py-1 drop-shadow-lg flex items-center justify-center text-xl font-semibold bg-green-400 rounded-lg'>
@@ -190,13 +226,14 @@ const Customization = ({ visible, onClose, data }) => {
 
                   <div className='md:hidden flex w-full h-[90%]'>
                     <div className=' h-auto w-full flex flex-col gap-4 p-2'>
-                      <motion.div className='ml-1 flex items-center justify-start'
+                      <motion.div className='ml-1 flex items-center justify-start' onClick={() => setOptionView(!optionView)}
                         initial={{ opacity: 0, x: 200 }} 
                         animate={{ opacity: 1, x: 0 }} 
-                        exit={{ opacity: 0, x: 200 }}>
+                        exit={{ opacity: 0, x: 200 }}
+                        whileTap={{ scale: 0.95 }}>
                         <p className='text-black text-lg border-2 bg-orange-100 border-orange-600 rounded-xl p-1 w-full flex items-center justify-center'>Select size here...</p>
                       </motion.div>
-            
+                      {optionView && (
                         <>
                           <motion.div className='flex flex-col gap-2 border-1 border-dotted border-gray-300'
                             initial={{ opacity: 0, y: 200 }} 
@@ -238,13 +275,15 @@ const Customization = ({ visible, onClose, data }) => {
                           )}
 
                         </>
-                     
+                      )}
                       <div className='flex items-center justify-center w-full gap-2'>
                         <motion.button whileTap={{ scale: 0.85 }}
                           type='button'
-                          onClick={handleAddToCart}
+                            onClick={() => {
+                            handleAddToCart(data)
+                            dispatch(setCartOn()); } }
                           className='w-[40%] flex items-center justify-center bg-pink-600 px-2 py-2 hover:bg-pink-900 rounded-2xl text-base text-white font-semibold'>
-                          Add
+                          Add to
                           <PiShoppingCartBold className='ml-2 text-white text-base' />
                         </motion.button>
                         <p className='w-[40%] px-2 py-1 drop-shadow-lg flex items-center justify-center text-xl font-semibold bg-green-400 rounded-lg'>
@@ -253,8 +292,7 @@ const Customization = ({ visible, onClose, data }) => {
                       </div>
                     </div>
                   </div>
-          </div>
-
+             </div>
         </div> 
       </div>
     </div>
@@ -263,4 +301,3 @@ const Customization = ({ visible, onClose, data }) => {
 
 
 export default Customization;
-

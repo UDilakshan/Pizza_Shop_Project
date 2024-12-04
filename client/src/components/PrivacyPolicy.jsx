@@ -7,7 +7,7 @@ const PrivacyPolicy = () => {
       style={{
         padding: '40px 20px',
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        marginTop: '120px', 
+        marginTop: '140px', 
         lineHeight: '1.6',
         maxWidth: '900px',
         margin: '0 auto',

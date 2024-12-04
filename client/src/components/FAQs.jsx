@@ -3,7 +3,7 @@ import React from "react";
 const FAQs = () => {
   const faqStyles = {
     container: {
-      padding: "60px 20px 20px",
+      padding: "100px 20px 20px",
       maxWidth: "800px",
       margin: "0 auto",
       fontFamily: "Arial, sans-serif",
@@ -31,7 +31,7 @@ const FAQs = () => {
       <h1 style={faqStyles.heading}>Frequently Asked Questions</h1>
 
       {/* FAQ 1 */}
-      <div>
+            <div>
         <p style={faqStyles.question}>1. What payment methods do you accept?</p>
         <p style={faqStyles.answer}>
           We only accept **Cash on Delivery** at the moment. You can pay the
@@ -43,7 +43,7 @@ const FAQs = () => {
       <div>
         <p style={faqStyles.question}>2. Can I customize my pizza?</p>
         <p style={faqStyles.answer}>
-          Yes! You can customize your pizza with your favorite toppings. Simply
+          Yes! You can customize your pizza with your extra cheese. Simply
           select the customization option while placing your order.
         </p>
       </div>

@@ -10,6 +10,7 @@ import { setCartItems } from "../context/actions/cartAction";
 import { addNeworder, getAllCartItems,increaseItemQuantity } from "../api/index";
 import empty from '../assets/images/OtherImages/empty.png';
 import Customization from "./Customization";
+import Bill from "./Bill";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -24,6 +25,10 @@ const Cart = () => {
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [phone, setPhone] = useState("");
+
+  const [showBill, setShowBill] = useState(false);
+  const [orderDetails, setOrderDetails] = useState(null);
+
 
   useEffect(() => {
     let tot = 0;
@@ -45,67 +50,43 @@ const Cart = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Check if the user is logged in before placing the order
+  
     if (!user || !user.user_id) {
       dispatch(alertDanger("Please log in to place an order"));
       setTimeout(() => {
         dispatch(alertNULL());
-        navigate("/login"); // Redirect to login page
+        navigate("/login");
       }, 2000);
       return;
     }
-
-    let currentTotal = 0;
-    if (cart && cart.length > 0) {
-      currentTotal = cart.reduce((acc, item) => {
-        const price = parseFloat(item.usualPrice);
-        const quantity = parseInt(item.quantity, 10);
-        return acc + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity);
-      }, 0);
-    }
-
+  
     const data = {
-      name: name,
+      name,
       user_id: user.user_id,
-      cart: cart,
+      cart,
       email: user.email,
-      addressNo: addressNo,
-      address1: address1,
-      address2: address2,
-      phone: phone,
-      total: currentTotal,
+      addressNo,
+      address1,
+      address2,
+      phone,
+      total,
     };
-
-    // Send the order to the server
+  
     addNeworder(data).then((res) => {
       if (res) {
         dispatch(alertSuccess("Order submitted successfully"));
-
-        // Reset form inputs and total
-        setName("");
-        setAddressNo("");
-        setAddress1("");
-        setAddress2("");
-        setPhone("");
-        setTotal(0);
-
-        // Reset cart to empty
-        dispatch(setCartItems([])); // This will clear the cart
-
-        toggleModal(); // Close the modal after submission
-
-        setTimeout(() => {
-          dispatch(alertNULL());
-        }, 3000);
+        setOrderDetails(data); // Save order details
+        setShowBill(true); // Show the bill
+        dispatch(setCartItems([]));
+        toggleModal();
+        setTimeout(() => dispatch(alertNULL()), 3000);
       } else {
         dispatch(alertDanger("Order Failed!"));
-        setTimeout(() => {
-          dispatch(alertNULL());
-        }, 3000);
+        setTimeout(() => dispatch(alertNULL()), 3000);
       }
     });
   };
+  
 
   const handlePhoneChange = (e) => {
     const value = e.target.value;
@@ -249,6 +230,14 @@ const Cart = () => {
           </div>
         </div>
       )}
+
+{showBill && (
+  <Bill
+    orderDetails={orderDetails}
+    onClose={() => setShowBill(false)}
+  />
+)}
+
     </motion.div>
   );
 };
@@ -378,5 +367,3 @@ export const CartItemCard = ({ index, data }) => {
 };
 
 export default Cart;
-
- 
