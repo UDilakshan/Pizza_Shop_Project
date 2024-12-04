@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "./context/actions/userActions";
 import { fadeInOut } from "./animations";
 import { Alert, MainLoader, Header, Footer, Dashboard, Profile, ContactUs, AboutUs, 
-HomeContainer,ResetPassword, FAQs, PrivacyPolicy} from './components';
+HomeContainer,ResetPassword, FAQs, PrivacyPolicy, Chatbot,openaiClient} from './components';
 import { setCartItems } from "./context/actions/cartAction";
 import { getAllCartItems} from "./api";
 
@@ -108,6 +108,7 @@ const showFooter = useFooterVisibility();
             <Route path = '/PrivacyPolicy' element={<PrivacyPolicy/>} />
             <Route path="/Dashboard/*" element={<Dashboard />} />  
             <Route path="/Profile/*" element={<Profile />} />  
+            <Route path='/Chatbot' element={<Chatbot/>} />
             
 
   

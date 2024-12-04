@@ -48,3 +48,5 @@ export {default as Cart} from"./Cart";
 export {default as FAQs} from "./FAQs";
 export {default as PrivacyPolicy} from "./PrivacyPolicy";
 export {default as Bill} from "./Bill";
+
+export {default as Chatbot} from "./Chatbot";

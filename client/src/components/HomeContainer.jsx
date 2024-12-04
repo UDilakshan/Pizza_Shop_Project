@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { PiShoppingCartBold } from "react-icons/pi";
-import { Customization, Header, Cart, Banners, Recommended, Offers } from '../components';
+import { Customization, Header, Cart, Banners, Recommended, Offers , Chatbot} from '../components';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -14,6 +14,7 @@ import { setCartOn } from '../context/actions/displaycartAction';
 import { alertNULL, alertSuccess } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
 import { addNewItemToCart, getAllCartItems } from "../api";
+
 
 const HomeContainer = () => {
   const [isFixed, setIsFixed] = useState(false);
@@ -563,6 +564,7 @@ function SamplePrevArrowOffers(props) {
         {/* <Header /> */}
         {isCart && <Cart />}
       </main>
+      <Chatbot />
     </div>
   );
 };
