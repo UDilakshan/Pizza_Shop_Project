@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { buttonClick, staggerFadeInOut } from '../animations';
 import { motion } from 'framer-motion';
-import { getAllOrder, updateOrderSts } from '../api';
+import { getAllOrder, updateOrderSts,deleteOrder } from '../api';
 import { setOrders } from '../context/actions/orderAction';
 import { useDispatch } from 'react-redux';
 
 const OrdersData = ({ index, data, admin }) => {
   const dispatch = useDispatch();
-  const [status, setStatus] = useState(data.sts); 
+  const [status, setStatus] = useState(data.sts);
   const [loading, setLoading] = useState(false);
 
   const handleClick = (orderId, sts) => {
-    setLoading(true); 
+    setLoading(true);
     updateOrderSts(orderId, sts)
       .then(() => {
-        setStatus(sts); 
+        setStatus(sts);
         return getAllOrder();
       })
       .then((orders) => {
@@ -29,6 +29,23 @@ const OrdersData = ({ index, data, admin }) => {
     console.log(`Order ${orderId} marked as ${sts}`);
   };
 
+  const handleDelete = (orderId) => {
+    setLoading(true);
+    deleteOrder(orderId)
+      .then(() => getAllOrder())
+      .then((orders) => {
+        dispatch(setOrders(orders));
+      })
+      .catch((error) => {
+        console.error('Error deleting order:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    console.log(`Order ${orderId} deleted`);
+  };
+
+
   console.log('Order data:', data);
 
   return (
@@ -37,7 +54,7 @@ const OrdersData = ({ index, data, admin }) => {
       className='w-full flex flex-col items-start justify-start px-3 py-2 border relative border-gray-300 bg-lightoverlay drop-shadow-md rounded-md gap-4'
     >
       <div className='w-full flex items-center justify-between'>
-        <h1 className='text-xl text-headingColor font-semibold'>Order Details</h1>
+        <h1 className='text-xl text-headingColor font-semibold'>  {data?.orderNumber}</h1>
         <div className='flex items-center gap-4'>
           <p className='flex items-center gap-1 text-textColor'>
             Total:
@@ -85,6 +102,18 @@ const OrdersData = ({ index, data, admin }) => {
               </motion.p>
             </div>
           )}
+
+             
+             {admin && (
+            <motion.p
+              {...buttonClick}
+              onClick={() => handleDelete(data.orderId)}
+              className="text-red-500 text-base font-semibold capitalize border border-gray-300 px-2 py-[2px] rounded-md cursor-pointer"
+            >
+              Delete
+             
+            </motion.p>
+          )}
         </div>
       </div>
 
@@ -103,7 +132,7 @@ const OrdersData = ({ index, data, admin }) => {
           >
             <div className='flex items-start flex-col'>
               <p className='text-base font-semibold text-headingColor'>
-              
+             
                 {cart.category === 'Desserts' ? cart.name : cart.product_name || cart.name}
               </p>
               <div className='flex items-start gap-2'>

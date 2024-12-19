@@ -30,9 +30,10 @@ export const addNewProduct = async (data) => {
 export const addNeworder = async (data) => {
     try {
         const res = await axios.post(`${baseURL}/api/orders/create`, { ...data });
-        console.log(res.data);
-        return res.data.data;
+        console.log(res.data.data);
+        return res.data;
     } catch (err) {
+        console.error("Ërror:",err);
         return null;
     }
 };
@@ -53,6 +54,16 @@ export const getAllProducts = async () => {
 export const deleteAProduct = async (productId) => {
     try {
         const res = await axios.delete(`${baseURL}/api/products/delete/${productId}`);
+        return res.data.data;
+    } catch (err) {
+        return null;
+    }
+};
+
+
+export const deleteOrder = async (orderId) => {
+    try {
+        const res = await axios.delete(`${baseURL}/api/orders/delete/${orderId}`);
         return res.data.data;
     } catch (err) {
         return null;
@@ -87,7 +98,11 @@ export const getAllUsers = async () => {
 export const getAllOrder = async () => {
     try {
         const res = await axios.get(`${baseURL}/api/orders/all`);
-        return res.data.data;
+        const numberedOrders = res.data.data.reverse().map((order, index) => ({
+            ...order,
+            orderNumber: index + 1,
+        }));
+        return numberedOrders;
     } catch (err) {
         return null;
     }
@@ -112,7 +127,7 @@ export const updateOrderSts = async (order_id, sts) => {
 export const addNewItemToCart = async (user_id, data) => {
     try {
         const res = await axios.post(
-            `${baseURL}/api/products/addToCart/${user_id}`, 
+            `${baseURL}/api/products/addToCart/${user_id}`,
             { ...data }
         );
         return res.data.data;
@@ -175,15 +190,3 @@ export const updateUser = (userId, updatedUserData) => {
     return axios.put(`/api/users/${userId}`, updatedUserData);
 };
 
-
-// Clear Cart
-export const clearCart = async (user_id) => {
-    try {
-      const res = await axios.delete(`${baseURL}/api/products/clearCart/${user_id}`);
-      return res.data.data; // Assuming the response contains the cleared cart data
-    } catch (err) {
-      console.error("Error clearing cart:", err);
-      return null;
-    }
-  };
-  

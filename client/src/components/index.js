@@ -42,6 +42,7 @@ export {default as ProEdit} from "../Profile/ProEdit";
 export {default as ProFeedback} from "../Profile/ProFeedback";  
 export {default as ProHistory} from "../Profile/ProHistory";  
 export {default as ProDeleteAccount} from "../Profile/ProDeleteAccount"; 
+export {default as DeveloperDetails} from "../Dashboard/DeveloperDetails";
 
 export {default as Cart} from"./Cart";
 //export {default as SliderCart}from "./SliderCart";
@@ -50,3 +51,4 @@ export {default as PrivacyPolicy} from "./PrivacyPolicy";
 export {default as Bill} from "./Bill";
 
 export {default as Chatbot} from "./Chatbot";
+

@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import {app} from "../firebase.config";
-import {MdLogin, MdLogout,FaBasketShopping,TfiMenuAlt,IoHome, FaCircleUser,BiSolidFoodMenu,RiContactsBook2Fill } from '../assets/icons'
+import {MdLogin, MdLogout,TfiMenuAlt,IoHome, FaCircleUser,BiSolidFoodMenu,RiContactsBook2Fill } from '../assets/icons'
 import { motion } from 'framer-motion';
 import { getAuth,onAuthStateChanged} from "firebase/auth";
 import  log  from '../assets/images/OtherImages/log.png';
@@ -16,7 +16,7 @@ import { getDoc, doc,setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseconfig";
 import Avatar3 from '../assets/images/OtherImages/Avatar3.png';
 
-function Header() {
+function Header({ toggleCart }) {
   
     const firebaseAuth = getAuth(app); 
     const user = useSelector(state => state.user)
@@ -198,9 +198,9 @@ useEffect(() => {
               
               <motion.div
                  {...SlideIn200} {...buttonClick} 
-                 onClick={() => dispatch(setCartOn())} 
+
                className='mb-2 relative flex items-center rounded-full  justify-center'>
-               <PiShoppingCartBold className='text-red-100 text-2xl cursor-pointer' />
+               <PiShoppingCartBold  onClick={toggleCart}  className='text-red-100 text-2xl cursor-pointer' />
   
                  {
                    cart && cart?.length > 0 && 
@@ -315,11 +315,11 @@ useEffect(() => {
             <PiShoppingCartBold onClick={() => dispatch(setCartOn())}  className='text-red-100 text-2xl cursor-pointer'  />
                    {
                    cart && cart?.length > 0 && 
-  (
+	(
                 <div className='absolute -top-2 -right-2 w-5 h-5 rounded-full bg-cartNumBg flex items-center justify-center'>
                 <p className='text-xs text-white font-semibold'>{cart?.length}</p>
             </div>
-  )}
+	)}
          </motion.div>
 
 
@@ -344,7 +344,7 @@ useEffect(() => {
                       <motion.img
                       {...buttonClick}
                       onClick={() => setIsMenu(!isMenu)}
-                      src={Avatar3}
+                      src={user?.picture || Avatar3} 
                       whileHover={{scale : 1.15}} 
                       className='w-full h-full object-cover'
                       referrerPolicy='no-referrer' 
@@ -503,3 +503,4 @@ useEffect(() => {
 }
 
 export default Header;
+

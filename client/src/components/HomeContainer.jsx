@@ -2,27 +2,31 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { PiShoppingCartBold } from "react-icons/pi";
-import { Customization, Header, Cart, Banners, Recommended, Offers , Chatbot} from '../components';
+import { Customization, Cart, Banners,Chatbot } from '../components';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { HashLink } from 'react-router-hash-link';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllProducts } from '../api';
+import { getAllProducts,increaseItemQuantity } from '../api';
 import { setAllProducts } from '../context/actions/productActions';
 import { setCartOn } from '../context/actions/displaycartAction';
-import { alertNULL, alertSuccess } from "../context/actions/alertActions";
+import { alertNULL, alertSuccess ,alertDanger} from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
 import { addNewItemToCart, getAllCartItems } from "../api";
+import { NavLink } from 'react-router-dom';
 
 
-const HomeContainer = () => {
+
+
+const HomeContainer = ({isCartOpen }) => {
+
   const [isFixed, setIsFixed] = useState(false);
   const recommendedRef = useRef(null);  // Reference to the recommended section
   const menuRef = useRef(null);
   const categoryContainerRef = useRef(null); 
   const [selectedItem, setSelectedItem] = useState(null);
-
+  const [width, setWidth] = useState('100%'); // Default width is full (100%)
   const [menuData, setMenuData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [recommended, setRecommended] = useState([]);
@@ -30,36 +34,69 @@ const HomeContainer = () => {
   const [modelView, setModelView] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const sectionsRef = useRef({});
-
   const sliderRef = useRef(null);
   const navigate = useNavigate();
   const products = useSelector((state) => state.products);
   const isCart = useSelector((state) => state.isCart);
   const user = useSelector((state) => state.user); // Ensure user data is available
-
   const dispatch = useDispatch();
+  const cart= useSelector((state)=> state.cart);
 
   const sendToCart = async (data) => {
+    if (!user || !user.user_id) {
+      dispatch(alertDanger("Please log in to update the cart"));
+      setTimeout(() => {
+        dispatch(alertNULL());
+        navigate("/login"); // Redirect to login page
+      }, 2000);
+      return;
+    }
     try {
       dispatch(alertSuccess('Added to the cart'));
       setTimeout(() => {
         dispatch(alertNULL());
-      }, 3000);
-      await addNewItemToCart(user?.user_id, data);
-      const items = await getAllCartItems(user?.user_id);
-      dispatch(setCartItems(items));
-      dispatch(alertNULL());
-      
+      }, 2000);
+
+         // If the user is logged in and size is selected, proceed with adding the item to the cart
+    const item = {   
+      productId: data.id,
+      product_name: data.name,
+      imageURL: data.imageURL,
+      usualPrice:data.usualPrice,
+      quantity:1,
+     
+      };
+  
+    const updatedCart = Array.isArray(cart) ? [...cart, item] : [item];
+   
+    await addNewItemToCart(user.user_id, data);
+    const items = await getAllCartItems(user.user_id);
+    dispatch(setCartItems(items));
+    dispatch(setCartItems([...cart, item]));
+    dispatch(setCartItems(updatedCart));
     
     } catch (error) {
       console.error("Error updating cart:", error);
     }
   };
 
-  const scrollToMenu = () => {
-    menuRef.current?.scrollIntoView({ behavior: "smooth" });
-};
+  useEffect(() => {
+  if (activeCategory && categoryContainerRef.current) {
+    const categoryElements = Array.from(categoryContainerRef.current.children); // All category items
+    const activeIndex = categoryData.findIndex((item) => item.name === activeCategory);
 
+    if (activeIndex !== -1) {
+      // Determine the range of categories to display (current + next 2 categories)
+      const start = Math.max(activeIndex - 1, 0); // Include the previous category if possible
+      const end = Math.min(activeIndex + 2, categoryData.length - 1);
+
+      // Scroll the first category in the range into view
+      categoryElements[start]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+}, [activeCategory, categoryData]);
+
+  
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,12 +143,50 @@ const HomeContainer = () => {
     setCategoryData(categoryData);
   }, [products]);
 
+  useEffect(() => {
+    // Restart autoplay on each re-render
+    if (sliderRef.current) {
+      sliderRef.current.slickPlay();
+    }
+  }, []);
+
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.25,
+    };
+  
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveCategory(entry.target.id);
+        }
+      });
+    };
+  
+    const observer = new IntersectionObserver(observerCallback, options);
+  
+    // Observe all sections in the menu
+    Object.values(sectionsRef.current).forEach((section) => {
+      if (section) {
+        observer.observe(section);
+      }
+    });
+  
+    // Cleanup observer on component unmount
+    return () => {
+      observer.disconnect();
+    };
+  }, [menuData]);
+  
+
   const settingsCatagory = {
     infinite: false,
     dots: false,
     draggable: true,
     swipe: true,
-    scroll: true,
     swipeToSlide: true,
     speed: 500,
     arrows: true,
@@ -124,25 +199,22 @@ const HomeContainer = () => {
       {
         breakpoint: 768,
         settings: {
-          nextArrow: false,
-          prevArrow: false,
-          slidesToShow: 3,
+          slidesToShow: 3, // Show 3 items for mobile screens
           slidesToScroll: 1,
-          initialSlide: 0,
-        }
+          arrows: false,  // Remove arrows for a better mobile experience
+        },
       },
       {
         breakpoint: 640,
         settings: {
-          nextArrow: false,
-          prevArrow: false,
           slidesToShow: 3,
           slidesToScroll: 1,
-          initialSlide: 0,
-        }
-      }
-    ]
+          arrows: false,
+        },
+      },
+    ],
   };
+  
 
   function SampleNextArrowCatagory(props) {
     const { className, style, onClick } = props;
@@ -288,61 +360,13 @@ function SamplePrevArrowOffers(props) {
     window.scrollTo({ top: y, behavior: 'smooth' });
   };
 
-  
-  useEffect(() => {
-    // Restart autoplay on each re-render
-    if (sliderRef.current) {
-      sliderRef.current.slickPlay();
+  const toggleWidth = () => {
+    if (window.innerWidth > 768) { // Check for screen width larger than 768px
+      setWidth(prevWidth => (prevWidth === '100%' ? '70%' : '100%'));
     }
-  }, []);
+  }; 
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const options = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.25
-      };
 
-      const observerCallback = (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setActiveCategory(entry.target.id);
-          }
-        });
-      };
-
-      const observer = new IntersectionObserver(observerCallback, options);
-
-      Object.values(sectionsRef.current).forEach(section => {
-        if (section) {
-          observer.observe(section);
-        }
-      });
-
-      return () => {
-        if (observer) {
-          observer.disconnect();
-        }
-      };
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [menuData]);
-
-  useEffect(() => {
-    if (activeCategory) {
-      const index = categoryData.findIndex(item => item.name === activeCategory);
-      if (index !== -1 && sliderRef.current) {
-        sliderRef.current.slickGoTo(index);
-      }
-    }
-  }, [activeCategory, categoryData]);
 
   return (
     
@@ -351,25 +375,25 @@ function SamplePrevArrowOffers(props) {
         <Banners /> 
        
        {/* Offers */}
-       
        <div>
         <div className='flex items-center justify-center md:mt-12 mt-6'>
         <p className='md:text-3xl text-xl font-semibold capitalize text-indigo-800 relative  '>
          OPizza Offers
         </p>
-    </div>
+      </div>
     <div className='flex flex-row mt-10'>
         <div className='md:w-[92%] md:h-[300px] w-full h-20 mx-auto'>
           <div>  
             <Slider ref={sliderRef} {...settingsOffers}>
               {offer && offer.map((item) => (  
                 <motion.div key={item?.productId} className='w-auto flex items-center justify-center'>
-                  <img 
+                  <HashLink to="#menuSection">
+                  <img
                     src={item?.imageURL} 
                     alt="Pizza Images" 
                     className='h-20 max-h-20 w-[90%] mx-auto md:w-full md:h-[300px] md:max-h-[300px] flex items-center justify-center md:px-4 md:py-2 cursor-pointer md:rounded-3xl rounded-md' 
-                     onClick={() => navigate('/offers')} 
                   />
+                  </HashLink>
                 </motion.div>
               ))}
             </Slider>
@@ -377,6 +401,7 @@ function SamplePrevArrowOffers(props) {
         </div>    
       </div>
       </div> 
+
 
       {/* <Recommended />  */}  
       <div ref={recommendedRef}  className="recommended-section">
@@ -433,25 +458,28 @@ function SamplePrevArrowOffers(props) {
               )}
           </div>      
     ))}
-  </div>
+       </div>
 
         {selectedItem && (
-          <Customization onClose={handleClose} visible={modelView} data={selectedItem} />
+          <Customization onClose={handleClose} visible={modelView} data={selectedItem} isCartOpen={isCartOpen} />
           )}
 
 
-        <main className='w-screen min-h-screen flex items-center justify-center flex-col '>
+         <main className='w-screen min-h-screen flex items-center justify-center flex-col '>
           {isCart && <Cart />}
-        </main> 
+        </main>  
         </div> 
       </div>
 
 
       {/* Category */}
-
       <div
       ref={categoryContainerRef}
       className={`category-container ${isFixed ? 'fixed-category' : ''}`}
+      style={{
+        width: isCartOpen ? '70%' : '100%', // Dynamically set width based on isCartOpen
+        transition: 'width 0.3s ease-in-out' // Smooth transition
+      }}
 
       >
         <motion.div ref={menuRef} 
@@ -471,7 +499,7 @@ function SamplePrevArrowOffers(props) {
                     <HashLink smooth to={`#${item?.name}`} scroll={el => scrollWithOffset(el)}>
                       <motion.div
                         whileTap={{ scale: 0.85 }}
-                        className={`h-[100px] max-h-28 md:h-auto flex items-center justify-start flex-col rounded-2xl ${
+                        className={`h-[100px] md:-mt-2 md:py-2 -mt-3 max-h-28 md:h-auto flex items-center justify-center flex-col rounded-2xl ${
                           activeCategory === item?.name ? 'bg-orange-500' : 'bg-none'
                         }`}
                       >
@@ -497,7 +525,6 @@ function SamplePrevArrowOffers(props) {
 
 
       {/* Menu */}
-      
       <div id="menuSection" className='flex md:-mt-[620px] -mt-[900px] items-center justify-center'>
         <div className='flex flex-wrap justify-center items-center gap-16'>
         {Object.keys( groupedData).map(category => (
@@ -516,20 +543,28 @@ function SamplePrevArrowOffers(props) {
                         className='w-32 md:w-32 md:ml-4 rounded-lg shadow-xl'
                         whileHover={{ scale: 1.1 }}
                       />
+
+
+
                       <div className='w-full flex flex-col items-center justify-center'>
                         <p className='text-black font-semibold md:text-base text-sm mt-4 flex flex-col items-end justify-end sm:text-wrap ml-12 md:ml-12'>
                           {item?.name}
                         </p>
+
+
                         <div className='flex flex-col items-end justify-end mt-4'>
                           {item?.smallPrice !== 0 && (
                             <p className='text-black font-semibold text-xs'>Starting</p>
                           )}
+
                           <p className='text-lg text-black font-semibold'>
                             <span className='text-sm text-red-500 px-1'>Rs.</span>
                             {parseFloat(item?.smallPrice ? item?.smallPrice : item?.usualPrice).toFixed(2)}
                           </p>
                         </div>
                       </div>
+
+                      
                     </div>
                     {item?.smallPrice !== 0 && (
                       <div>
@@ -555,15 +590,9 @@ function SamplePrevArrowOffers(props) {
           ))}
         </div>
         {selectedItem && (
-          <Customization onClose={handleClose} visible={modelView} data={selectedItem} />
+          <Customization onClose={handleClose} visible={modelView} data={selectedItem} isCartOpen={isCartOpen} />
         )}
       </div> 
-
-
-      <main className='w-screen min-h-screen flex items-center justify-center flex-col '>
-        {/* <Header /> */}
-        {isCart && <Cart />}
-      </main>
       <Chatbot />
     </div>
   );
