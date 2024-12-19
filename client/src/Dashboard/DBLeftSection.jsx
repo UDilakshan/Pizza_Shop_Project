@@ -3,8 +3,17 @@ import { NavLink } from "react-router-dom";
 import { isActiveStyles, isNotActiveStyles } from "../utils/style";
 import { SlideInTop200 } from "../animations";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom';
+
+
 
 const DBLeftSection = ({ onNavLinkClick }) => {
+
+    const navigate = useNavigate();  // This should be inside the component function
+
+    const handleClick = () => {
+      navigate('/developer-details'); // Navigate to the DeveloperDetails page
+    };
     return (
     <motion.div {...SlideInTop200} className="h-full flex flex-col shadow-sm md:min-w-210 md:w-300 w-full gap-3 bg-gray-100 backdrop-blur-lg">
       <hr className="my-2 border-t-2 border-gray-300" />
@@ -25,9 +34,11 @@ const DBLeftSection = ({ onNavLinkClick }) => {
                 <p className="text-base text-gray-300 text-center">
                     Having trouble in O'Pizza, Please contact us for more questions
                 </p>
-                <p className="px-4 py-2 rounded-full bg-primary text-black cursor-pointer mb-2">
-                    Get in touch
-                </p>
+                <p className="px-4 py-2 rounded-full bg-primary text-black cursor-pointer mb-2"
+                    onClick={handleClick}
+                >
+                   Click here
+               </p>
         </div>
       </div>
     </motion.div>

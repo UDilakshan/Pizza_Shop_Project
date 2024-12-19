@@ -1,6 +1,6 @@
 import React from "react";
-import { ProDeleteAccount, ProEdit, ProFeedback, ProHistory } from "../components";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { ProDeleteAccount, ProEdit, ProFeedback, ProHistory } from "../components"; 
 
 const ProRightSection = () => {
     return (
@@ -11,6 +11,7 @@ const ProRightSection = () => {
                     <Route path="/feedback" element={<ProFeedback />} />
                     <Route path="/edit" element={<ProEdit />} />
                     <Route path="/deleteaccount" element={<ProDeleteAccount />} />
+                    <Route path="/" element={<Navigate to="/Profile/history" replace />} />
                 </Routes>
             </div>
         </div>

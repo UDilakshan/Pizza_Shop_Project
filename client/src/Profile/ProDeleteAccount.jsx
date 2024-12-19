@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { getAuth, signInWithEmailAndPassword, deleteUser } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { alertSuccess, alertWarning, alertNULL } from "../context/actions/alertActions";
 import ConfirmationModal from './ConfirmationModal';
 
@@ -59,8 +59,9 @@ const ProDelete = () => {
       const user = auth.currentUser;
 
       if (!isGoogleUser) {
-        
-        await signInWithEmailAndPassword(auth, email, password);
+        // Reauthenticate the user
+        const credential = EmailAuthProvider.credential(email, password);
+        await reauthenticateWithCredential(user, credential);
       }
 
       if (user) {
@@ -74,7 +75,11 @@ const ProDelete = () => {
       }
     } catch (error) {
       console.error("Error deleting account:", error); 
-      dispatch(alertWarning(`Failed to delete account. Error: ${error.message}`));
+      if (error.code === 'auth/requires-recent-login') {
+        dispatch(alertWarning("Please relogin to continue this action."));
+      } else {
+        dispatch(alertWarning(`Failed to delete account. Error: ${error.message}`));
+      }
       setTimeout(() => {
         dispatch(alertNULL());
       }, 3000);
@@ -111,7 +116,7 @@ const ProDelete = () => {
       }}>
         <h1 className="text-2xl font-bold mb-2">Delete Account</h1> 
         <p className="mb-4 text-red-600">
-        ⚠️ Deleting your account will remove all your data. This action cannot be undone.
+          ⚠️ Deleting your account will remove all your data. This action cannot be undone.
         </p>
 
         <div className="mb-4">

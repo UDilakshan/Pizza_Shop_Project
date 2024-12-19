@@ -58,17 +58,17 @@ const DBUsers = () => {
     <div className="flex flex-grow-0 items-center justify-self-center gap-5 pt-6 w-full">
       <DataTable
         columns={[
-          {
-            title: 'Image',
-            field: 'photoURL',
-            render: (rowData) => (
-              <img
-                src={rowData.photoURL ? rowData.photoURL : Avatar}
-                className="w-14 h-14 object-contain rounded-xl"
-                alt="User"
-              />
-            ),
-          },
+          // {
+          //   title: 'Image',
+          //   field: 'photoURL',
+          //   render: (rowData) => (
+          //     <img
+          //       src={rowData.photoURL ? rowData.photoURL : Avatar}
+          //       className="w-14 h-14 object-contain rounded-xl"
+          //       alt="User"
+          //     />
+          //   ),
+          // },
           {
             title: 'Name',
             field: 'displayName',

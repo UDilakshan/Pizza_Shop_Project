@@ -30,6 +30,16 @@ const Login = () => {
   const user = useSelector((state) => state.user);
   const alert = useSelector((state) => state.alert);
 
+  const [errorMessages, setErrorMessages] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    userName: '',
+    phoneNumber: '',
+    address: '',
+  });
+  
+
   useEffect(() => {
     const checkEmailVerification = async () => {
       const currentUser = firebaseAuth.currentUser;
@@ -39,14 +49,14 @@ const Login = () => {
           if (currentUser.emailVerified) {
             navigate("/", { replace: true });
           } else {
-            dispatch(alertWarning('Email is not verified. Please check your inbox for the verification email.'));
+            dispatch(alertWarning('Email is not verified. Please check your email inbox.'));
             setTimeout(() => {
               dispatch(alertNULL());
             }, 3000);
           }
         } catch (error) {
           console.error('Error reloading user:', error);
-          dispatch(alertWarning('An error occurred while checking email verification status. Please try again later.'));
+          dispatch(alertWarning('An error occurred while checking email verification status.'));
           setTimeout(() => {
             dispatch(alertNULL());
           }, 3000);
@@ -107,7 +117,8 @@ const Login = () => {
     const validEmail = /\S+@\S+\.\S+/;
     const phoneNumberRegex = /^\d{10}$/;
     const usernameRegex = /^[a-zA-Z0-9_.-]{3,15}$/;
-    const addressRegex =/^[a-zA-Z0-9\s,.-]{4,100}$/;
+    const addressRegex = /^[a-zA-Z0-9\s,.-]{4,50}$/;
+
 
     if (userEmail === "" || password === "" || confirm_password === "" || user_name === "" || phone_number === "" || address === "") {
       dispatch(alertWarning("Please fill the required fields"));
@@ -149,50 +160,23 @@ const Login = () => {
       return;
     }
 
-    if (!password.match(validSymbols)) {
-      dispatch(
-        alertWarning(
-          "Password can only contain letters, numbers, and @,#,$,%,^,&,*,! symbols"
-        )
-      );
-      setTimeout(() => {
-        dispatch(alertNULL());
-      }, 3000);
-      return;
-    }
+      // Reset errors before validation
+  setErrorMessages({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    userName: '',
+    phoneNumber: '',
+    address: '',
+  });
 
-    if (!usernameRegex.test(user_name)) {
-      dispatch(alertWarning("Invalid username. It should be 3-15 characters long and contain only alphanumeric characters, underscores, periods, or hyphens."));
-      setTimeout(() => {
-        dispatch(alertNULL());
-      }, 3000);
-      return;
-    }
+  /*
+  if (!password.match(validSymbols)) {
+    setErrorMessages((prev) => ({ ...prev, password: "Password can only contain letters, numbers, and @,#,$,%,^,&,*,! symbols" }));
+    return;
+  }*/
 
-    if (!phoneNumberRegex.test(phone_number)) {
-      dispatch(alertWarning("Invalid phone number. It should be exactly 10 digits long and contain only numeric characters."));
-      setTimeout(() => {
-        dispatch(alertNULL());
-      }, 3000);
-      return;
-    }
 
-    if (!addressRegex.test(address)) {
-      dispatch(alertWarning("Address should be 4-100 characters long and contain only letters, numbers, spaces, commas, periods, or hyphens."));
-      setTimeout(() => {
-        dispatch(alertNULL());
-      }, 3000);
-      return;
-    }
-    else{
-     
-      setUserEmail("");
-      setPassword("");
-      setConfirm_password("");
-      setUser_name('');
-      setPhone_number("");
-      setAddress("");
-    }
     try {
       const userCred = await createUserWithEmailAndPassword(firebaseAuth, userEmail, password);
       await updateProfile(userCred.user,  {
@@ -347,6 +331,8 @@ const Login = () => {
             type="email"
             isSignUp={isSignUp}
           />
+          {errorMessages.email && <p className="text-red-500 text-sm">{errorMessages.email}</p>}  {/* Display email error */}
+
 
           <LoginInput
             placeHolder={"Password Here"}
@@ -356,7 +342,7 @@ const Login = () => {
             type="password"
             isSignUp={isSignUp}
           />
-
+        {errorMessages.password && <p className="text-red-500 text-sm">{errorMessages.password}</p>}  {/* Display password error */}
           {isSignUp && (
             <>
               <LoginInput
@@ -367,6 +353,7 @@ const Login = () => {
                 type="password"
                 isSignUp={isSignUp}
               />
+               {errorMessages.confirmPassword && <p className="text-red-500 text-sm">{errorMessages.confirmPassword}</p>} {/* Display confirm password error */}
               <LoginInput
                 placeHolder={"User Name Here"}
                 icon={<FaUser className="text-xl text-black" />}
@@ -375,6 +362,7 @@ const Login = () => {
                 type="text"
                 isSignUp={isSignUp}
               />
+               {errorMessages.userName && <p className="text-red-500 text-sm">{errorMessages.userName}</p>} {/* Display username error */}
               <LoginInput
                 placeHolder={"Phone Number Here"}
                 icon={<FaPhone className="text-xl text-black" />}
@@ -383,6 +371,7 @@ const Login = () => {
                 type="tel"
                 isSignUp={isSignUp}
               />
+               {errorMessages.phoneNumber && <p className="text-red-500 text-sm">{errorMessages.phoneNumber}</p>} {/* Display phone number error */}
               <LoginInput
                 placeHolder={"Address Here"}
                 icon={<FaMapMarkedAlt className="text-xl text-black" />}
@@ -391,7 +380,9 @@ const Login = () => {
                 type="text"
                 isSignUp={isSignUp}
               />
-            </>
+               {errorMessages.address && <p className="text-red-500 text-sm">{errorMessages.address}</p>} {/* Display address error */}
+               </>
+           // </>
           )}
 
           {!isSignUp ? (
@@ -510,8 +501,10 @@ const Login = () => {
               inputState={user_name}
               inputStateFunc={setUser_name}
               type="text"
+              name="username"
               isSignUp={true}
               className="mt-3" // Add margin-bottom here
+             // errorMessage={errorMessages.userName} // Pass the error message to the input
             />
             
             <LoginInput
@@ -530,6 +523,7 @@ const Login = () => {
               inputState={address}
               inputStateFunc={setAddress}
               type="text"
+              name="address"
               isSignUp={true}
               className="mt-3" // Add margin-bottom to create a gap
             />

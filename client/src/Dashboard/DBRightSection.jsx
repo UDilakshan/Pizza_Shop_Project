@@ -1,6 +1,6 @@
 import React from "react";
 import { DBHome, DBOrders, DBItems, DBNewitems, DBUsers, DBFeedback } from "../components";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import {HiOutlineChevronDoubleDown} from "../assets/icons";
 import { buttonClick, SlideInBottom200 } from "../animations";
 import { motion } from "framer-motion";
@@ -20,6 +20,7 @@ const DBRightSection = ({ onBackClick }) => {
                     <Route path="/addnewitems" element={<DBNewitems />} />
                     <Route path="/users" element={<DBUsers />} />
                     <Route path="/feedback" element={<DBFeedback />} />
+                    <Route path="/" element={<Navigate to="/Dashboard/home" replace />} />
                 </Routes>
             </div>
         </motion.div>

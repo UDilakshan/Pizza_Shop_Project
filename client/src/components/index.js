@@ -12,7 +12,6 @@ export {default as Banners} from "./Banners";
 export {default as Offers} from "./Offers";
 export {default as Recommended} from "./Recommended";
 export {default as Customization} from "./Customization";
-export {default as FullMenuContainer} from "../containers/FullMenuContainter";
 export {default as ResetPassword} from "./ResetPassword";
 
 export {default as DBLeftSection} from "../Dashboard/DBLeftSection";    
@@ -43,6 +42,13 @@ export {default as ProEdit} from "../Profile/ProEdit";
 export {default as ProFeedback} from "../Profile/ProFeedback";  
 export {default as ProHistory} from "../Profile/ProHistory";  
 export {default as ProDeleteAccount} from "../Profile/ProDeleteAccount"; 
+export {default as DeveloperDetails} from "../Dashboard/DeveloperDetails";
 
 export {default as Cart} from"./Cart";
 //export {default as SliderCart}from "./SliderCart";
+export {default as FAQs} from "./FAQs";
+export {default as PrivacyPolicy} from "./PrivacyPolicy";
+export {default as Bill} from "./Bill";
+
+export {default as Chatbot} from "./Chatbot";
+

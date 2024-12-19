@@ -10,11 +10,15 @@ import { GiFullPizza } from "react-icons/gi";
 import { PiShoppingCartBold } from "react-icons/pi";
 import { alertSuccess, alertNULL } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
+import { addNewItemToCart, getAllCartItems,increaseItemQuantity } from '../api';
+import { useNavigate } from 'react-router-dom';
+import { setCartOn } from '../context/actions/displaycartAction';
 
-
-const Customization = ({ visible, onClose, data }) => {
+const Customization = ({ visible, onClose, data, isCartOpen  }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const cart = useSelector((state) => state.cart);
+  const user= useSelector((state) => state.user);
   const [price, setPrice] = useState("");
   const [selectedSize, setSelectedSize] = useState(null);
   const [optionView, setOptionView] = useState(false);
@@ -23,6 +27,9 @@ const Customization = ({ visible, onClose, data }) => {
   const [totalPrice, setTotalPrice] = useState("0.00");
   const [cartVisible, setCartVisible] = useState(false);
 
+
+
+  
   const handleClose = (e) => {
     if (e.target.id === 'outOfBorder') onClose();
   };
@@ -53,37 +60,77 @@ const Customization = ({ visible, onClose, data }) => {
     setCheeseAdded(!cheeseAdded);
   };
 
-  const handleAddToCart = () => {
-    // Example logic to handle adding to cart
-    console.log("Adding to cart...");
-    console.log("Size:", selectedSize);
-    console.log("Total Price:", totalPrice);
+  const handleAddToCart =  async (data) => { 
+    // Check if the user is logged in
+    if (!user || !user.user_id) {
+      // If not logged in, show an alert and redirect to the login page
+      dispatch(alertSuccess("Please log in to add items to the cart"));
+      setTimeout(() => {
+        dispatch(alertNULL());
+        navigate('/login'); // Redirect to login page
+      }, 2000);
+      return; // Prevent further execution
+    }
   
+    // Check if a size is selected
+    if (!selectedSize) {
+      // Show an alert if no size is selected
+      dispatch(alertSuccess("Please select a size before adding to cart"));
+      setTimeout(() => dispatch(alertNULL()), 2000);
+      return; // Prevent adding to cart if size is not selected
+    }
+    let pricePerUnit = 0;
+
+if (selectedSize === 'small') {
+  pricePerUnit = data.smallPrice;
+} else if (selectedSize === 'medium') {
+  pricePerUnit = data.mediumPrice;
+} else if (selectedSize === 'large') {
+  pricePerUnit = data.largePrice;
+}
+
+const Price = pricePerUnit * data.increaseItemQuantity;
+    // If the user is logged in and size is selected, proceed with adding the item to the cart
     const item = {
-      productId: data.id, // Adjust as per your data structure
-      product_name: data.name, // Adjust as per your data structure
+      productId: data.productId,
+      name: data.name,
       imageURL: data.imageURL,
-      usualPrice: price, // Current price with size and cheese
-      quantity: 1, // Default quantity or get it from a state if needed
+      smallPrice: data.smallPrice,
+      mediumPrice:data.mediumPrice,
+      largePrice: data.largePrice,
+      usualPrice:price,
+      quantity: 1,
+      //quantity: data.increaseItemQuantity || 1,
       size: selectedSize,
-      cheeseAdded: cheeseAdded,
-    };
+      // cheeseAdded:cheeseAdded,
+      
+      };
   
-    // Dispatch action to add item to cart
-    dispatch(setCartItems([...cart, item])); // Ensure you have a way to add items correctly
+    const updatedCart = Array.isArray(cart) ? [...cart, item] : [item];
+    
+    await addNewItemToCart(user.user_id, data);
+    const items = await getAllCartItems(user.user_id);
+    dispatch(setCartItems(items));
+    //dispatch(setCartItems([...cart, item]));
+    //dispatch(setCartItems(updatedCart));
+
     dispatch(alertSuccess("Item added to cart"));
     setTimeout(() => {
       dispatch(alertNULL());
-    }, 3000);
-    //setCartVisible(true);
-  
-    // Close the customization modal if needed
+    }, 2000);
+
+   
+    /* resetState(); */
     onClose();
-  };
+  }
 
   if (!visible) return null;
   return (
-    <div onClick={handleClose} id='outOfBorder' className='fixed inset-0 z-50 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center'>
+    <div onClick={handleClose} id='outOfBorder' className={`fixed inset-0 z-50 transition-all duration-300 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center ${
+      isCartOpen ? "w-[70%]" : "w-full"
+    }`}>
+      
+
       <div className="bg-white p-4 rounded-lg relative w-[90%] md:w-[60%] border border-gray-300 md:h-[70%] h-[80%] mt-5">
         <div>
           <button onClick={onClose} className='absolute top-0 right-0 m-2'>
@@ -160,7 +207,10 @@ const Customization = ({ visible, onClose, data }) => {
                       <div className='flex items-center justify-center w-full gap-2'>
                         <motion.button whileTap={{ scale: 0.85 }}
                           type='button'
-                          onClick={handleAddToCart}
+                          onClick={() => {
+                            dispatch(setCartOn())
+                            handleAddToCart(data);
+                          }}
                           className='w-[40%] flex items-center justify-center bg-pink-600 px-2 py-2 hover:bg-pink-900 rounded-2xl text-base text-white font-semibold'>
                           Add
                           <PiShoppingCartBold className='ml-2 text-white text-base' />
@@ -263,4 +313,3 @@ const Customization = ({ visible, onClose, data }) => {
 
 
 export default Customization;
-

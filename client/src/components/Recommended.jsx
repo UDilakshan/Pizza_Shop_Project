@@ -64,7 +64,7 @@ const Recommended = () => {
   return (
     <div className='md:mt-24 mt-16'>
         <div className='flex items-center justify-center md:mt-12 mt-6'>
-        <p className='md:text-3xl text-xl font-semibold capitalize text-indigo-800 relative  '>
+        <p className='md:text-2xl text-xl font-bold capitalize text-black relative bg-white px-16 py-2 rounded-3xl'>
          Recommended
         </p>
     </div>
@@ -115,15 +115,18 @@ const Recommended = () => {
             )}
         </div>      
   ))}
-  </div>
 
       {selectedItem && (
-        <Customization onClose={handleClose} visible={modelView} data={selectedItem} />
+         <Customization onClose={handleClose} visible={modelView} data={selectedItem} />
         )}
+
+  </div>
+
+      
 
 
       <main className='w-screen min-h-screen flex items-center justify-center flex-col '>
-        <Header />
+        
         {isCart && <Cart />}
       </main>
 
