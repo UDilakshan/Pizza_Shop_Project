@@ -26,12 +26,27 @@ export const addNewProduct = async (data) => {
     }
 };
 
+
+export const clearCartItems = async (user_id) => {
+    try {
+      const response = await fetch(`/api/clearCart/${user_id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      return response.ok;
+    } catch (error) {
+      console.error("Error clearing cart in API:", error);
+      return false;
+    }
+  };
+
+  
 // Add New Order
 export const addNeworder = async (data) => {
     try {
         const res = await axios.post(`${baseURL}/api/orders/create`, { ...data });
         console.log(res.data.data);
-        return res.data;
+        return res.data.data;
     } catch (err) {
         console.error("Ërror:",err);
         return null;

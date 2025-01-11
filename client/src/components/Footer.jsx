@@ -29,7 +29,7 @@ const Footer = () => {
         <div className="footer-section">
           <h3>Quick Links</h3>
           <ul>
-            <li><a href="/FullMenuContainer">Menu</a></li>
+            
             <li><a href="/AboutUs">About Us</a></li>
             <li><a href="/ContactUs">Contact Us</a></li>
             <li><a href="/FAQs">FAQs</a></li>

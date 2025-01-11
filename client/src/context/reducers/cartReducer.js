@@ -6,7 +6,7 @@ const cartReducer =(state=null,action)=>{
       case "SET_CART_ITEMS":
           return action.items;
 
-      case "CLEAR_CART_ITEMS": 
+      case "CLEARCART_ITEMS": 
               return [];
               
       case 'UPDATE_PRODUCT_PRICE':

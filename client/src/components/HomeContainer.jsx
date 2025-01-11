@@ -19,7 +19,7 @@ import { NavLink } from 'react-router-dom';
 
 
 
-const HomeContainer = ({isCartOpen }) => {
+const HomeContainer = ({isCartOpen, CartOpen }) => {
 
   const [isFixed, setIsFixed] = useState(false);
   const recommendedRef = useRef(null);  // Reference to the recommended section
@@ -57,7 +57,6 @@ const HomeContainer = ({isCartOpen }) => {
         dispatch(alertNULL());
       }, 2000);
 
-         // If the user is logged in and size is selected, proceed with adding the item to the cart
     const item = {   
       productId: data.id,
       product_name: data.name,
@@ -72,8 +71,8 @@ const HomeContainer = ({isCartOpen }) => {
     await addNewItemToCart(user.user_id, data);
     const items = await getAllCartItems(user.user_id);
     dispatch(setCartItems(items));
-    dispatch(setCartItems([...cart, item]));
-    dispatch(setCartItems(updatedCart));
+  /*   dispatch(setCartItems([...cart, item]));
+    dispatch(setCartItems(updatedCart)); */
     
     } catch (error) {
       console.error("Error updating cart:", error);
@@ -181,6 +180,23 @@ const HomeContainer = ({isCartOpen }) => {
     };
   }, [menuData]);
   
+
+
+
+
+  const scrollToMenu = () => {
+    const menuDiv = document.querySelector("#menuSection");
+    if (menuDiv) {
+      // Define yOffset based on screen size
+      const isMobile = window.innerWidth <= 768; // Adjust this breakpoint as needed
+      const yOffset = isMobile ? -400 : -320; // Mobile offset: -400, Desktop offset: -320
+  
+      const yPosition = menuDiv.getBoundingClientRect().top + window.pageYOffset + yOffset;
+  
+      window.scrollTo({ top: yPosition, behavior: "smooth" });
+    }
+  };
+
 
   const settingsCatagory = {
     infinite: false,
@@ -389,6 +405,7 @@ function SamplePrevArrowOffers(props) {
                 <motion.div key={item?.productId} className='w-auto flex items-center justify-center'>
                   <HashLink to="#menuSection">
                   <img
+                  onClick={scrollToMenu}
                     src={item?.imageURL} 
                     alt="Pizza Images" 
                     className='h-20 max-h-20 w-[90%] mx-auto md:w-full md:h-[300px] md:max-h-[300px] flex items-center justify-center md:px-4 md:py-2 cursor-pointer md:rounded-3xl rounded-md' 
@@ -448,8 +465,10 @@ function SamplePrevArrowOffers(props) {
             {item?.name !== 'Beef Sausages' && item?.usualPrice !== 0 && (
                 <motion.button whileTap={{ scale: 0.85 }}
                   type='button' onClick={() => {
+                    CartOpen();
                     dispatch(setCartOn());
                     sendToCart(item);
+                    
                   }}
                   className='w-[30%] md:ml-8 ml-4 flex items-center justify-center bg-red-600 px-2 py-2 hover:bg-red-700 rounded-2xl md:text-base text-sm text-white font-semibold'>
                   Add to
@@ -461,8 +480,8 @@ function SamplePrevArrowOffers(props) {
        </div>
 
         {selectedItem && (
-          <Customization onClose={handleClose} visible={modelView} data={selectedItem} isCartOpen={isCartOpen} />
-          )}
+          <Customization onClose={handleClose} visible={modelView} data={selectedItem} CartOpen={CartOpen} isCartOpen={isCartOpen} />
+        )}
 
 
          <main className='w-screen min-h-screen flex items-center justify-center flex-col '>
@@ -575,8 +594,10 @@ function SamplePrevArrowOffers(props) {
                     {item?.name !== 'Beef Sausages' && item?.usualPrice !== 0 && (
                       <motion.button whileTap={{ scale: 0.85 }}
                         type='button' onClick={() => {
+                          CartOpen();
                           dispatch(setCartOn());
                           sendToCart(item);
+                          
                         }}
                         className='w-[30%] md:ml-8 ml-4 flex items-center justify-center bg-red-600 px-2 py-2 hover:bg-red-700 rounded-2xl md:text-base text-sm text-black font-semibold'>
                         Add to
@@ -590,7 +611,7 @@ function SamplePrevArrowOffers(props) {
           ))}
         </div>
         {selectedItem && (
-          <Customization onClose={handleClose} visible={modelView} data={selectedItem} isCartOpen={isCartOpen} />
+          <Customization onClose={handleClose} visible={modelView} data={selectedItem} CartOpen={CartOpen} isCartOpen={isCartOpen} />
         )}
       </div> 
       <Chatbot />

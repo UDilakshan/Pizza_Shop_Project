@@ -54,6 +54,19 @@ const App = () => {
           });
         });
       }
+      else {
+        // If the user is logged out, navigate to the login page
+       // navigate('/login');
+        // Prevent back navigation to the previous page
+       {/* window.history.pushState() allows you to manipulate the browser's history without actually navigating to a new page.
+        The first argument (null) is the state object that you want to associate with the new history entry. It's not used here, so it's set to null.
+        The second argument (null) is the title for the new state (this isn't really used by most browsers anymore, but it must be provided).
+        The third argument (window.location.href) is the current URL of the page (i.e., the page the user is on when they log out). This effectively pushes the current URL onto the history stack.*/}
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = () => {
+          window.history.pushState(null, null, window.location.href);
+        };
+      }
       setTimeout(() => {
         setIsLoading(false);
       }, 3000);
@@ -101,6 +114,14 @@ const App = () => {
     setIsCartOpen((prevState) => !prevState); // Toggle the cart open/close state
   };
 
+  const CartOpen = () =>{
+    setIsCartOpen(true);
+  }
+
+  const CartClose = () =>{
+    setIsCartOpen(false);
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       {isLoading && (
@@ -112,20 +133,17 @@ const App = () => {
       )}
 
       <main className="flex-grow">
-        {showHeader && <Header toggleCart={toggleCart} />}
+        {showHeader && <Header CartOpen={CartOpen} CartClose={CartClose} isCartOpen={isCartOpen} toggleCart={toggleCart} />}
 
         <div className="flex">
-          {/* Dynamically adjust the width of HomeContainer */}
           <div
-            className={`transition-all ease-in-out duration-300 ${
-              isCartOpen ? "w-[70%]" : "w-full"
-            }`}
+            className={`transition-all ease-in-out duration-300 ${isCartOpen ? "w-[70%]" : "w-full"}`}
           >
             <Routes>
               {/* Pass isCartOpen to HomeContainer */}
               <Route
                 path="/"
-                element={<HomeContainer isCartOpen={isCartOpen} />}
+                element={<HomeContainer CartOpen={CartOpen} isCartOpen={isCartOpen} />}
               />
               <Route path="/Login" element={<Login />} />
               <Route

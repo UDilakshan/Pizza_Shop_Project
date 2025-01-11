@@ -53,7 +53,7 @@ const Bill = ({ orderDetails, onClose }) => {
 
     doc.setFont("times", "normal");
     const orderName = `Name: ${orderDetails.name || "N/A"}`;
-    const orderAddress = `Address: ${orderDetails.addressNo || ""}, ${orderDetails.address1 || ""}, ${orderDetails.address2 || ""}`;
+    const orderAddress = `Address: ${orderDetails.address}`;
     const orderPhone = `Phone: ${orderDetails.phone || "N/A"}`;
     doc.text(orderName, margin, yStart + 10);
     doc.text(orderAddress, margin, yStart + 20);
@@ -108,7 +108,7 @@ const Bill = ({ orderDetails, onClose }) => {
         <h2 className="text-xl font-semibold mb-4">Order Bill</h2>
         <div className="mb-4">
           <p><strong>Name:</strong> {orderDetails.name}</p>
-          <p><strong>Address:</strong> {orderDetails.addressNo}, {orderDetails.address1}, {orderDetails.address2}</p>
+          <p><strong>Address:</strong>{orderDetails.address}</p>
           <p><strong>Phone:</strong> {orderDetails.phone}</p>
         </div>
         <div className="mb-4">

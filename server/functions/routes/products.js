@@ -45,6 +45,43 @@ router.get("/all", async (req, res) => {
 });
 
 
+router.delete("/clearCart/:user_id", async (req, res) => {
+    const userId = req.params.user_id;
+
+    try {
+        // Reference to the cart items collection for the specific user
+        const query = db
+            .collection("cartItems")
+            .doc(userId) // Directly access the user's document
+            .collection("items");
+
+        // Fetch all documents in the user's cart items collection
+        const querySnapshot = await query.get();
+
+        // Check if there are no documents
+        if (querySnapshot.empty) {
+            return res.status(200).send({ success: false, msg: "No items found in the cart." });
+        }
+
+        // Initialize a batch for deleting all cart items
+        const batch = db.batch();
+
+        querySnapshot.docs.forEach((doc) => {
+            batch.delete(doc.ref); // Add each document deletion to the batch
+        });
+
+        // Commit the batch deletion
+        await batch.commit();
+
+        // Return success response
+        return res.status(200).send({ success: true, msg: "Cart cleared successfully." });
+    } catch (err) {
+        // Log the error and send failure response
+        console.error("Error clearing cart:", err);
+        return res.status(500).send({ success: false, msg: "An error occurred while clearing the cart.", error: err.message });
+    }
+});
+
 
 // Delete a product
 router.delete("/delete/:productId", async (req, res) => {

@@ -104,16 +104,7 @@ const OrdersData = ({ index, data, admin }) => {
           )}
 
              
-             {admin && (
-            <motion.p
-              {...buttonClick}
-              onClick={() => handleDelete(data.orderId)}
-              className="text-red-500 text-base font-semibold capitalize border border-gray-300 px-2 py-[2px] rounded-md cursor-pointer"
-            >
-              Delete
-             
-            </motion.p>
-          )}
+           
         </div>
       </div>
 

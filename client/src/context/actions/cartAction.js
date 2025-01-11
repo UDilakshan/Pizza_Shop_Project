@@ -10,14 +10,14 @@ export const getCartItems =()=>{
       type:"GET_CART_ITEMS",
   };
 };
-export const clearCartItems =()=>{
+
+
+export const clearCart =()=>{
   return{
-      type:"CLEAR_CART_ITEMS",
+      type:"CLEARCART_ITEMS",
    
   };
 };
-
-
 
 
 export const updateProductPrice = (productId, newPrice) => {

@@ -3,16 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import { motion } from "framer-motion";
 import { buttonClick, slideIn } from "../animations";
-import { BiChevronRight} from "react-icons/bi";
 //import {FcClearFilters} from "react-icons/fc";
 import { setCartOff } from "../context/actions/displaycartAction";
 import { alertSuccess, alertNULL, alertDanger } from "../context/actions/alertActions";
 import { setCartItems } from "../context/actions/cartAction";
 import { addNeworder, getAllCartItems,increaseItemQuantity } from "../api/index";
 import empty from '../assets/images/OtherImages/empty.png';
-import { clearCartItems } from "../context/actions/cartAction";
 //import Customization from "./Customization";
-import Bill from "./Bill";
+
 
 
 const Cart = () => {
@@ -25,15 +23,13 @@ const Cart = () => {
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [name, setName] = useState(user?.name || "");
-  const [addressNo, setAddressNo] = useState("");
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  const [city, setCity] = useState('');
+  const [address, setAddress] = useState('');
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState('');
   const [showBill, setShowBill] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
-  const [city, setCity] = useState('');
-  const [address, setAddress] = useState('');
+
 
   const handleDistrictChange = (e) => {
     setDistrict(e.target.value);
@@ -91,9 +87,7 @@ const Cart = () => {
       user_id: user.user_id,
       cart: cart,
       email: user.email,
-      addressNo: addressNo,
-      address1: address1,
-      address2: address2,
+      address: address,
       phone: phone,
       total: currentTotal,
     };
@@ -105,17 +99,16 @@ const Cart = () => {
       if (res) {
         dispatch(alertSuccess("Order submitted successfully"));
         setOrderDetails(data); // Save order details
+        console.log("New order data : ", data);
         setShowBill(true);
         dispatch(setCartItems([])); // This will clear the cart
         toggleModal(); // Close the modal after submission
         setTimeout(() => {
           dispatch(alertNULL());
         }, 2000);
-        
+
         setName("");
-        setAddressNo("");
-        setAddress1("");
-        setAddress2("");
+        setAddress("");
         setPhone("");
         setTotal(0);
       
@@ -138,48 +131,27 @@ const Cart = () => {
 
 
 
-  const handleClearCart = async () => {
-    if (!user || !user.user_id) {
-      dispatch(alertDanger("Please log in to clear the cart"));
-      setTimeout(() => dispatch(alertNULL()), 2000);
-      return;
-    }
-  
-    try {
-      const success = await clearCartItems(user.user_id);
-      if (success) {
-        dispatch(setCartItems([])); // Clear the cart in Redux
-        dispatch(alertSuccess("Cart cleared successfully"));
-      } else {
-        dispatch(alertDanger("Failed to clear the cart"));
-      }
-    } catch (error) {
-      console.error("Error clearing cart:", error);
-      dispatch(alertDanger("Failed to clear the cart"));
-    } finally {
-      setTimeout(() => dispatch(alertNULL()), 2000);
-    }
-  };
+
   
 
   return (
     <motion.div
       {...slideIn}
-      className="fixed z-50 top-24 right-0 w-full md:w-[375px] bg-gradient-to-r from-purple-300 to-blue-200 backdrop-blur-lg shadow-2xl h-[calc(100vh-6rem)]  p-6 rounded-l-xl"
+      className="fixed z-20 top-24 right-0 w-full md:w-[375px] bg-gradient-to-r from-purple-300 to-blue-200 backdrop-blur-lg shadow-2xl h-[calc(100vh-6rem)]  p-6 rounded-l-xl"
     >
 
        
     
 
-      <div className="w-full flex items-center justify-between py-6 border-b border-gray-300">
+      <div className="w-full flex items-center justify-center py-6 border-b border-gray-300">
         <motion.i
           {...buttonClick}
           className="cursor-pointer"
           onClick={() => dispatch(setCartOff())}
         >
-          <BiChevronRight className="text-[40px] text-white" />
+         {/*  <BiChevronRight className="text-[40px] text-white" /> */}
         </motion.i>
-        <p className="text-2xl text-white font-bold">Your Card</p>
+        <p className="text-2xl text-white font-bold">Your Cart</p>
        {/* <motion.i
           {...buttonClick}
           className="cursor-pointer"
@@ -244,6 +216,8 @@ const Cart = () => {
           <div className="bg-white rounded-lg p-6 max-w-[500px] w-full">
             <h2 className="text-xl font-semibold mb-4">Enter Your Details</h2>
             <form onSubmit={handleSubmit}>
+
+
               <div className="mb-4">
                 <label className="block text-gray-700">Name</label>
                 <input
@@ -269,8 +243,6 @@ const Cart = () => {
     >
       <option value="">Select District</option>
       <option value="Jaffna">Jaffna</option>
-      <option value="Colombo">Colombo</option>
-      <option value="Kandy">Kandy</option>
     </select>
   </div>
 
@@ -303,7 +275,7 @@ const Cart = () => {
   )}
 
   <div className="mb-4">
-    <label className="block text-gray-700 text-sm">Address</label>
+    <label className="block text-gray-700 text-sm">Delivery Address</label>
     <input
       type="text"
       value={address}
@@ -337,6 +309,7 @@ const Cart = () => {
 
   <div className="mt-4">
     <button
+    
       type="submit"
       className="w-full bg-blue-500 text-white py-2 px-3 rounded-sm"
       disabled={district !== "Jaffna"}
@@ -350,12 +323,7 @@ const Cart = () => {
       )}
 
 
-{showBill && (
-  <Bill
-    orderDetails={orderDetails}
-    onClose={() => setShowBill(false)}
-  />
-)}
+
 
 
     </motion.div>

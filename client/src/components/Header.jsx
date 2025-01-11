@@ -4,7 +4,7 @@ import {MdLogin, MdLogout,TfiMenuAlt,IoHome, FaCircleUser,BiSolidFoodMenu,RiCont
 import { motion } from 'framer-motion';
 import { getAuth,onAuthStateChanged} from "firebase/auth";
 import  log  from '../assets/images/OtherImages/log.png';
-import { setCartOn } from '../context/actions/displaycartAction';
+import { setCartOff, setCartOn } from '../context/actions/displaycartAction';
 import Logo from "../assets/images/OtherImages/Logo.png";
 import { Link, useNavigate, useLocation  } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,7 +16,7 @@ import { getDoc, doc,setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseconfig";
 import Avatar3 from '../assets/images/OtherImages/Avatar3.png';
 
-function Header({ toggleCart }) {
+function Header({ toggleCart, isCartOpen, CartOpen, CartClose }) {
   
     const firebaseAuth = getAuth(app); 
     const user = useSelector(state => state.user)
@@ -200,7 +200,18 @@ useEffect(() => {
                  {...SlideIn200} {...buttonClick} 
 
                className='mb-2 relative flex items-center rounded-full  justify-center'>
-               <PiShoppingCartBold  onClick={toggleCart}  className='text-red-100 text-2xl cursor-pointer' />
+               <PiShoppingCartBold  onClick={()=>{
+                 if(!isCartOpen){
+                  CartOpen();
+                  dispatch(setCartOn());
+                 }
+                 else {
+                  CartClose();
+                  dispatch(setCartOff());
+                 }
+               }}  
+               
+               className='text-red-100 text-2xl cursor-pointer' />
   
                  {
                    cart && cart?.length > 0 && 
@@ -312,7 +323,16 @@ useEffect(() => {
         {/* Cart */}
 
         <motion.div onClick={hideAllMenu} {...SlideIn200} {...buttonClick} className='relative flex items-center justify-center'>
-            <PiShoppingCartBold onClick={() => dispatch(setCartOn())}  className='text-red-100 text-2xl cursor-pointer'  />
+            <PiShoppingCartBold onClick={()=>{
+                 if(!isCartOpen){
+                  CartOpen();
+                  dispatch(setCartOn());
+                 }
+                 else {
+                  CartClose();
+                  dispatch(setCartOff());
+                 }
+               }}  className='text-red-100 text-2xl cursor-pointer'  />
                    {
                    cart && cart?.length > 0 && 
 	(
@@ -340,11 +360,11 @@ useEffect(() => {
                     user.emailVerified ? (
                     
                     <div className='relative cursor-pointer'>
-                    <motion.div {...SlideIn200} className='w-8 h-8 drop-shadow-md cursor-pointer overflow-hidden rounded-full'>
+                    <motion.div {...SlideIn200} className='z-40 w-8 h-8 drop-shadow-md cursor-pointer overflow-hidden rounded-full'>
                       <motion.img
                       {...buttonClick}
                       onClick={() => setIsMenu(!isMenu)}
-                      src={user?.picture || Avatar3} 
+                      src={Avatar3}
                       whileHover={{scale : 1.15}} 
                       className='w-full h-full object-cover'
                       referrerPolicy='no-referrer' 
@@ -354,7 +374,7 @@ useEffect(() => {
 
                     {
                           isMenu && (
-                              <motion.div {...SlideIn200}  className='w-36 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-12 right-2'>
+                              <motion.div {...SlideIn200}  className=' w-36 bg-gray-50 shadow-xl rounded-lg flex flex-col absolute top-12 right-2'>
 
                             {   
                                 user && (       
@@ -432,7 +452,7 @@ useEffect(() => {
               <motion.div
               {...SlideIn200}
               {...buttonClick}>
-                <TfiMenuAlt onClick={viewClientMenu} className=' mt- font-pacifico text-slate-100 text-xl font-bold' />
+                <TfiMenuAlt onClick={viewClientMenu} className='z-40 mt- font-pacifico text-slate-100 text-xl font-bold' />
               </motion.div>
 
               {
